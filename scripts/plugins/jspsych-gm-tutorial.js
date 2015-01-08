@@ -1,3 +1,22 @@
+/** js-psych-gm-tutorial.js
+ *  David Brokaw
+ *
+ * 	This plugin runs a single Grasping Math action tutorial.
+ *
+ * 	The problem consists of:
+ * 		A description.
+ * 		An expression.
+ * 		If the user performs the describes action, they will move on to the next tutorial.
+ * 		If the user does the incorrect action, they will have to try again.
+ *
+ * 	Parameters:
+ * 		type: "gm-tutorial"
+ * 		problems: an array of objects
+ * 			Each object contains:
+ * 			- an expression (GM ascii string)
+ * 			- the name of the action that should be performed on that expression
+ */
+
 (function($) {
 
 	jsPsych['gm-tutorial'] = (function() {
@@ -10,6 +29,7 @@
 		}
 
 		plugin.create = function(params) {
+			params = jsPsych.pluginAPI.enforceArray(params, ['problems']);
 			plugin.timing_post_trial = params.timing_post_trial || 0;
 
 			var trials = new Array(params.problems.length);
