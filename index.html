@@ -5,12 +5,13 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/graspablemath.js"></script>
+<script src="libs/graspablemath.min.js"></script>
 <!-- Load the jspsych library and plugins -->
 <script src="stimuli/scrambler.js"></script>
 <script src="scripts/jspsych.js"></script>
 <script src="scripts/plugins/jspsych-text.js"></script>
 <script src="scripts/plugins/jspsych-html.js"></script>
+<script src="scripts/plugins/jspsych-gm-tutorial.js"></script>
 <script src="scripts/plugins/jspsych-gm-solve-eq.js"></script>
 <script src="scripts/plugins/jspsych-gm-multiple-choice.js"></script>
 <!-- Load the stylesheet -->
@@ -34,6 +35,12 @@ var welcomeMessage = '<div id="welcome"><p>Welcome to the experiment. Press ente
 
 var welcomeBlock = { type: 'text', text: [welcomeMessage] };
 
+var tutorialBlock = { type: 'gm-tutorial'
+                     ,problems: [{expression: '2x+2x'
+                                 ,correctAction: 'direct factor'}
+                                ,{expression: '(x+y)*z'
+                                 ,correctAction: 'distribute'}]}
+
 function startExperiment(pretestBlock, posttestBlock, testingBlock) {
   jsPsych.init({
     display_element: $('#jspsych_target')
@@ -52,7 +59,8 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
     //     , force_refresh: true
     //     }
     //   ]}
-     testingBlock
+      tutorialBlock
+    , testingBlock
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/post-instructions.html"
         , cont_btn: "start"
