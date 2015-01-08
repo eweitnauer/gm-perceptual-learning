@@ -23,6 +23,8 @@
 
 		var plugin = {};
 
+		// the key is the name of the action,
+		// the value is the description you want to give it
 		var instructions = {
 			'direct factor': 'Drag one variable onto another identical variable to factor.'
 		 ,'distribute': 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
