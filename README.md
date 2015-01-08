@@ -1,0 +1,1 @@
+The copy_to_server.sh script copies the files to the perceptsconcepts server in IUB. The site can be reached at [gm-pl-experiment](https://perceptsconcepts.psych.indiana.edu/experiments/ew/gm-pl-1.0/index.html).

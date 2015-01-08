@@ -1,0 +1,13 @@
+@font-face {
+  font-family: 'Crimson Text Italics';
+  src: url(crimson-italic-webfont.ttf);
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  src: url(crimson-roman-webfont.ttf);
+}
+
+svg g.math text {
+	/*text-anchor: middle;*/
+}
