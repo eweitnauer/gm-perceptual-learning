@@ -198,7 +198,7 @@ function createMainBlock(rows) {
   problems = [];
   scrambledRows = permutation(rows);
   for (var i=0; i<scrambledRows.length; i++) {
-    var row = rows[49];//scrambledRows[i];
+    var row = scrambledRows[i];
     var scrambled = scramble([row.target, row.correct, row.bad1, row.bad2, row.bad3]);
     var problem = {};
     var choices = permutation(scrambled.slice(2));

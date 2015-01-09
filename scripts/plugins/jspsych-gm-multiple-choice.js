@@ -246,6 +246,7 @@
 				}, 750);
 			}
 
+			// animate two actions simultaneously (only update after second action)
 			var doTwoActionsForUser = function(actions, callback) {
 				partData.correctAction = [actions[0].name, actions[1].name];
 				var view = correctChoice.dl.getLastView();
@@ -256,25 +257,49 @@
 					view.options.easing_fn = 'quad-in-out';
 					actions[0].doInPlace();
 					actions[0].newTree.hide_nodes();
-					view.update_all();
 					actions[1].oldTree = actions[0].newTree;
 					actions[1].newTree = actions[1].oldTree;
-					var nsToHighlight = actions[1].getNewTreeNode(actions[1].nodes);
-					view.interaction_handler.highlight_nodes(nsToHighlight || []);
-					var doSecondActionTimer = setTimeout(function() {
-						view.options.dur = 1000;
-						view.options.easing_fn = 'quad-in-out'
-						actions[1].doInPlace();
-						actions[1].newTree.hide_nodes();
-						view.update_all();
-						setTimeout(function() {
-							view.options.dur = 250;
-							view.interaction_handler.highlight_nodes([]);
-							setTimeout(callback, 250);
-						}, 1000);
+					actions[1].doInPlace();
+					actions[1].newTree.hide_nodes();
+					view.update_all();
+					setTimeout(function() {
+						view.options.dur = 250;
+						view.interaction_handler.highlight_nodes([]);
+						setTimeout(callback, 250);
 					}, 1000);
 				}, 750);
 			}
+
+			// animate two actions distinctly (update after each action)
+			// var doTwoActionsForUser = function(actions, callback) {
+			// 	partData.correctAction = [actions[0].name, actions[1].name];
+			// 	var view = correctChoice.dl.getLastView();
+			// 	actions[0].newTree = actions[0].oldTree;
+			// 	view.interaction_handler.highlight_nodes(actions[0].nodes || []);
+			// 	var doActionTimer = setTimeout(function() {
+			// 		view.options.dur = 1000;
+			// 		view.options.easing_fn = 'quad-in-out';
+			// 		actions[0].doInPlace();
+			// 		actions[0].newTree.hide_nodes();
+			// 		view.update_all();
+			// 		actions[1].oldTree = actions[0].newTree;
+			// 		actions[1].newTree = actions[1].oldTree;
+			// 		var nsToHighlight = actions[1].getNewTreeNode(actions[1].nodes);
+			// 		view.interaction_handler.highlight_nodes(nsToHighlight || []);
+			// 		var doSecondActionTimer = setTimeout(function() {
+			// 			view.options.dur = 1000;
+			// 			view.options.easing_fn = 'quad-in-out'
+			// 			actions[1].doInPlace();
+			// 			actions[1].newTree.hide_nodes();
+			// 			view.update_all();
+			// 			setTimeout(function() {
+			// 				view.options.dur = 250;
+			// 				view.interaction_handler.highlight_nodes([]);
+			// 				setTimeout(callback, 250);
+			// 			}, 1000);
+			// 		}, 1000);
+			// 	}, 750);
+			// }
 
 	  	function on_change(choice) {
 	  		return function(evt) {
