@@ -45,21 +45,21 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
   jsPsych.init({
     display_element: $('#jspsych_target')
   , experiment_structure: [
-    //   welcomeBlock
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/pre-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    // , pretestBlock
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/test-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-      tutorialBlock
+      welcomeBlock
+    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/pre-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , pretestBlock
+    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/test-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , tutorialBlock
     , testingBlock
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/post-instructions.html"
@@ -198,7 +198,7 @@ function createMainBlock(rows) {
   problems = [];
   scrambledRows = permutation(rows);
   for (var i=0; i<scrambledRows.length; i++) {
-    var row = rows[0];//scrambledRows[i];
+    var row = rows[49];//scrambledRows[i];
     var scrambled = scramble([row.target, row.correct, row.bad1, row.bad2, row.bad3]);
     var problem = {};
     var choices = permutation(scrambled.slice(2));

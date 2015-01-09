@@ -246,31 +246,35 @@
 				}, 750);
 			}
 
-			// var doTwoActionsForUser = function(actions) {
-			// 	partData.correctAction = [actions[0].name, actions[1].name];
-
-			// 	var parentDL = getDLOfCorrectAnswer();
-			// 	actions[0].newTree = actions[0].oldTree;
-			// 	parentDL.getLastRow().view.interaction_handler.highlight_nodes(actions[0].nodes || []);
-			// 	var doActionTimer = setTimeout(function() {
-			// 		clearTimeout(doActionTimer);
-			// 		actions[0].doInPlace();
-			// 		actions[0].newTree.hide_nodes();
-			// 		parentDL.getLastRow().view.update_all();
-			// 		parentDL.getLastRow().view.interaction_handler.highlight_nodes([]);
-			// 		actions[1].oldTree = actions[0].newTree;
-			// 		actions[1].newTree = actions[1].oldTree;
-			// 		var nsToHighlight = actions[1].getNewTreeNode(actions[1].nodes);
-			// 		parentDL.getLastRow().view.interaction_handler.highlight_nodes(nsToHighlight || []);
-			// 		var doSecondActionTimer = setTimeout(function() {
-			// 			clearTimeout(doSecondActionTimer);
-			// 			actions[1].doInPlace();
-			// 			actions[1].newTree.hide_nodes();
-			// 			parentDL.getLastRow().view.update_all();
-			// 			parentDL.getLastRow().view.interaction_handler.highlight_nodes([]);
-			// 		}, 1500);
-			// 	}, 1500);
-			// }
+			var doTwoActionsForUser = function(actions, callback) {
+				partData.correctAction = [actions[0].name, actions[1].name];
+				var view = correctChoice.dl.getLastView();
+				actions[0].newTree = actions[0].oldTree;
+				view.interaction_handler.highlight_nodes(actions[0].nodes || []);
+				var doActionTimer = setTimeout(function() {
+					view.options.dur = 1000;
+					view.options.easing_fn = 'quad-in-out';
+					actions[0].doInPlace();
+					actions[0].newTree.hide_nodes();
+					view.update_all();
+					actions[1].oldTree = actions[0].newTree;
+					actions[1].newTree = actions[1].oldTree;
+					var nsToHighlight = actions[1].getNewTreeNode(actions[1].nodes);
+					view.interaction_handler.highlight_nodes(nsToHighlight || []);
+					var doSecondActionTimer = setTimeout(function() {
+						view.options.dur = 1000;
+						view.options.easing_fn = 'quad-in-out'
+						actions[1].doInPlace();
+						actions[1].newTree.hide_nodes();
+						view.update_all();
+						setTimeout(function() {
+							view.options.dur = 250;
+							view.interaction_handler.highlight_nodes([]);
+							setTimeout(callback, 250);
+						}, 1000);
+					}, 1000);
+				}, 750);
+			}
 
 	  	function on_change(choice) {
 	  		return function(evt) {
@@ -285,7 +289,6 @@
 		  	time += partData.time_to_submit;
 		  	var tasks_to_do = 2;
 		  	function finish() {
-		  		// if (part===trial.parts.length)
 		  		if (time > timeLimit)
 		  			block.next();
 		  		if (--tasks_to_do === 0)
@@ -341,299 +344,3 @@
 	  return plugin;
 	})();
 })(jQuery);
-
-
-// (function($) {
-
-// 	jsPsych['gm-multiple-choice'] = (function() {
-
-// 		var plugin = {};
-
-// 		plugin.create = function(params) {
-// 			params = jsPsych.pluginAPI.enforceArray(params, ['problems']);
-// 			plugin.save_trial = params.save_trial;
-// 			plugin.timing_post_trial = params.timing_post_trial || 0;
-// 			var trials = new Array(params.problems.length);
-// 			for (var i=0; i<trials.length; i++) {
-// 				trials[i] = {};
-// 				trials[i].type = 'gm-multiple-choice';
-// 				trials[i].id = i;
-
-// 				var prob = params.problems[i];
-// 				trials[i].solution = prob.solution;
-// 				trials[i].A = prob.A;
-// 				trials[i].B = prob.B;
-// 				trials[i].C = prob.C;
-// 				trials[i].D = prob.D;
-// 				trials[i].correctAnswer = prob.correctAnswer;
-// 				trials[i].data = (typeof params.data === 'undefined') ? {} : params.data[i];
-// 			}
-// 			return trials;
-// 		};
-
-// 	  plugin.trial = function(display_element, block, trial, part) {
-// 	  	display_element = d3.select(display_element[0]);
-// 	  	var solution = trial.solution;
-// 	  	choices = {
-// 	  			  A: { id: 'A', expr: trial.A, dl: null, svg: null }
-// 	  			, B: { id: 'B', expr: trial.B, dl: null, svg: null }
-// 	  			, C: { id: 'C', expr: trial.C, dl: null, svg: null }
-// 	  			, D: { id: 'D', expr: trial.D, dl: null, svg: null }
-// 	  		  }
-// 	  	correctChoice = choices[trial.correctAnswer];
-
-// 	  	var userChoice
-// 	  	  , userActionCount = 0
-// 	  	  , mouse_is_up = true
-// 	  	  , finished = false;
-
-// 	  	var trialData = {
-// 	  		time_to_action : null
-// 	  	 ,time_to_submit : null
-// 	  	 ,userChoice : null
-// 	  	 ,userAction : null
-// 	  	 ,userResult : null
-// 	  	 ,accuracy : false
-// 	  	 ,correctAction : null
-// 	  	};
-
-// 	  	var container = display_element.append('div').attr('id', 'container');
-
-// 	  	d3.values(choices).forEach(setupChoice);
-// 	  	var sol = appendSolutionAndMakeGMExpr(solution);
-
-// 	  	addEventListeners();
-
-//   		var startTime = Date.now();
-
-// 	  	function appendSolutionAndMakeGMExpr(expr) {
-// 	  		var div = container.append('div').classed('solution', true);
-// 	  		div.append('span').text('Target');
-// 		  	var sol = DerivationList.createStandalone(div.node(), {eq: expr, interactive: false});
-// 	  		return sol;
-// 	  	}
-
-// 	  	function setupChoice(choice) {
-// 	  		var choices = container.select('.choices');
-// 	  		if (choices.empty()) choices = container.append('div').classed('choices', true);
-// 		  	var div = choices.append('div')
-// 		  	  .attr('id', 'choice'+choice.id)
-// 		  	  .classed('choice', true);
-// 		  	choice.dl = DerivationList.createStandalone(div.node(),
-// 		  		{eq: choice.expr, selection_color: '#0093FF'});
-// 		  	div.append('span').text('correct').style('opacity', 0.00001);
-// 		  	choice.svg = div.select('svg');
-// 		  	choice.div = div;
-// 		  }
-
-// 		  function addEventListeners() {
-// 		  	d3.values(choices).forEach(function(choice) {
-// 		  		choice.dl.events.on('change', on_change(choice));
-// 		  		choice.svg.on('mousedown', mouse_down(choice));
-// 		  		choice.svg.on('mouseup', mouse_up(choice));
-// 		  	});
-// 		  }
-
-// 		  function chainTransition(sel, delay) {
-// 		  	if (sel.node().__transition__ && sel.id && sel.node().__transition__[sel.id]) {
-// 	  			var transition = sel.node().__transition__[sel.id];
-// 	  			console.log('extra delay', transition.delay + transition.duration);
-// 	  			delay += transition.delay + transition.duration;
-// 	  		}
-// 	  		return sel.transition().delay(delay);
-// 		  }
-
-// 	  	function wrongTransition(sel, delay) {
-// 	  		var ts = chainTransition(sel, delay).duration(500);
-// 	  		ts.select('svg').style('background', '#E0A8A8');
-// 		  	ts.select('span').text('wrong').style('opacity', 1);
-// 		  	return ts;
-// 	  	}
-
-// 	  	function correctTransition(sel, delay) {
-// 	  		var ts = chainTransition(sel, delay).duration(500);
-// 	  		ts.select('svg').style('background', '#A8E0B3');
-// 		  	ts.select('span').text('correct').style('opacity', 1);
-// 		  	return ts;
-// 	  	}
-
-// 	  	function neutralTransition(sel, delay) {
-// 	  		var ts = chainTransition(sel, delay).duration(500);
-// 	  		ts.select('svg').style('background', '#eee');
-// 		  	ts.select('span').style('opacity', 0.000001);
-// 		  	return ts;
-// 	  	}
-
-// 	  	function problemAnsweredCorrectly(choice) {
-// 	  		trialData.accuracy = true;
-// 	  		correctTransition(choice.div, 0)
-// 	  		  .each('end', function() { setTimeout(afterResponse, 1000) });
-// 	  	}
-
-// 	  	function problemAnsweredIncorrectly(choice) {
-// 			  var correctAction;
-// 			  var ts = wrongTransition(choice.div, 0);
-// 			  ts = neutralTransition(ts, 1500);
-// 	  		ts.each('end', function() {
-// 					if (choice === correctChoice)
-// 	  		 		userChoice.dl.setExpression(trial[userChoice.id]);
-// 					correctAction = breadthFirstActionSearch(2);
-// 					ts = correctTransition(correctChoice.div, 500);
-// 					ts = chainTransition(ts, 1000).duration(0);
-// 					ts.each('end', function() {
-// 			   	  doActionForUser(correctAction, function() {
-// 		  	 	  	setTimeout(afterResponse, 2000);
-// 		  	 		});
-// 		  	 	});
-// 	  		});
-// 	  	}
-
-// 	  	function breadthFirstActionSearch(maxDepth) {
-// 	  		var result;
-// 	  		var correctAnsTree = correctChoice.dl.getLastModel()
-// 	  		   ,solutionAscii = sol.getLastModel().to_ascii()
-// 	  		for (var i=1; i<=maxDepth; i++) {
-// 	  			var startingDepth = 1;
-// 	  			result = findAction(correctAnsTree, solutionAscii, startingDepth, i);
-// 	  			if (result) return result;
-// 	  		}
-// 	  		return false;
-// 	  	}
-
-// 	  	function doActionForUser(actions, callback) {
-// 	  		if (actions) {
-// 		  		if (actions.length===1) doSingleActionForUser(actions[0], callback);
-// 		  		if (actions.length===2) doTwoActionsForUser(actions, callback);
-// 		  	}
-// 	  		return false;
-// 	  	}
-
-// 			var findAction = function(tree, targetAscii, currDepth, maxDepth) {
-// 				if (tree.to_ascii()===targetAscii) return [];
-// 				if (currDepth>maxDepth) return false;
-// 				var treeNodes = tree.select_all().slice(1).filter(function(x){return x.is_group('add')
-// 			                                                                    || x.is_group('sub')
-// 			                                                                    || x.is_group('num')
-// 			                                                                    || x.is_group('var')});  // fix this to account for mul-divs etc.
-// 				var moveActions = [];
-// 				for (var i=0; i<treeNodes.length; i++) {
-// 					moveActions = moveActions.concat(tree.getMoveActions([treeNodes[i]]));
-// 				}
-// 				for (var i=0; i<moveActions.length; i++) {
-// 					var action = moveActions[i];
-// 					action.run();
-// 					var res = findAction(action.newTree, targetAscii, currDepth+1, maxDepth, (currDepth+1)%2===0);
-// 					if (res) return [action].concat(res);
-// 				}
-// 				return false;
-// 			}
-
-// 			var doSingleActionForUser = function(action, callback) {
-// 				trialData.correctAction = [action.name];
-// 				var view = correctChoice.dl.getLastView();
-// 				action.newTree = action.oldTree;
-// 				view.interaction_handler.highlight_nodes(action.nodes || []);
-// 				var doActionTimer = setTimeout(function() {
-// 					view.options.dur = 1000;
-// 					view.options.easing_fn = 'quad-in-out';
-// 					action.doInPlace();
-// 					action.newTree.hide_nodes();
-// 					view.update_all();
-// 					setTimeout(function() {
-// 						view.options.dur = 250;
-// 						view.interaction_handler.highlight_nodes([]);
-// 						setTimeout(callback, 250);
-// 					}, 1000);
-// 				}, 750);
-// 			}
-
-// 			// var doTwoActionsForUser = function(actions) {
-// 			// 	trialData.correctAction = [actions[0].name, actions[1].name];
-
-// 			// 	var parentDL = getDLOfCorrectAnswer();
-// 			// 	actions[0].newTree = actions[0].oldTree;
-// 			// 	parentDL.getLastRow().view.interaction_handler.highlight_nodes(actions[0].nodes || []);
-// 			// 	var doActionTimer = setTimeout(function() {
-// 			// 		clearTimeout(doActionTimer);
-// 			// 		actions[0].doInPlace();
-// 			// 		actions[0].newTree.hide_nodes();
-// 			// 		parentDL.getLastRow().view.update_all();
-// 			// 		parentDL.getLastRow().view.interaction_handler.highlight_nodes([]);
-// 			// 		actions[1].oldTree = actions[0].newTree;
-// 			// 		actions[1].newTree = actions[1].oldTree;
-// 			// 		var nsToHighlight = actions[1].getNewTreeNode(actions[1].nodes);
-// 			// 		parentDL.getLastRow().view.interaction_handler.highlight_nodes(nsToHighlight || []);
-// 			// 		var doSecondActionTimer = setTimeout(function() {
-// 			// 			clearTimeout(doSecondActionTimer);
-// 			// 			actions[1].doInPlace();
-// 			// 			actions[1].newTree.hide_nodes();
-// 			// 			parentDL.getLastRow().view.update_all();
-// 			// 			parentDL.getLastRow().view.interaction_handler.highlight_nodes([]);
-// 			// 		}, 1500);
-// 			// 	}, 1500);
-// 			// }
-
-// 	  	function on_change(choice) {
-// 	  		return function(evt) {
-// 	  			if (finished) return;
-// 		  		userActionCount++;
-// 	  			if (mouse_is_up) finish_interaction(choice);
-// 		  	}
-// 	  	}
-
-// 		  var afterResponse = function() {
-// 		  	display_element.html('');
-// 		  	var tasks_to_do = 2;
-// 		  	function finish() {
-// 		  		if (--tasks_to_do === 0) block.next();
-// 		  	}
-// 		  	setTimeout(finish, plugin.timing_post_trial);
-// 		  	var data = $.extend({}, trial, trialData);
-// 		  	if (plugin.save_trial) plugin.save_trial(block.trial_idx, data, finish);
-// 		  	else finish();
-// 		  }
-
-// 		  function mouse_down(choice) {
-// 		  	return function() {
-// 		  		mouse_is_up = false;
-// 		  		if (userActionCount) return;
-// 		  		userChoice = choice;
-// 		  		trialData.time_to_action = Date.now() - startTime;
-// 		  	}
-// 		  }
-
-// 		  function mouse_up(choice) {
-// 		  	return function() {
-// 		  		mouse_is_up = true;
-// 		  		if (trialData.time_to_submit) return;
-// 		  		if (!userActionCount) return;
-// 		  		finish_interaction(choice);
-// 		  	}
-// 		  }
-
-// 		  function finish_interaction(choice) {
-// 		  	finished = true;
-// 		  	d3.values(choices).forEach(function(choice) {
-// 	  			choice.dl.getLastView().interactive(false);
-// 	  		});
-//   			trialData.time_to_submit = Date.now() - startTime;
-// 	  		trialData.userChoice = choice.id;
-// 	  		trialData.userActionCount = userActionCount;
-// 	  		trialData.userResult = choice.dl.getLastModel().to_ascii();
-
-// 	  		checkAnswer(choice);
-// 		  }
-
-// 		  function checkAnswer(choice) {
-// 		  	var correctAnsAscii = sol.getLastModel().to_ascii();
-// 	  		if (trialData.userResult === correctAnsAscii) {
-// 	  			problemAnsweredCorrectly(choice);
-// 	  		} else {
-// 	  			problemAnsweredIncorrectly(choice);
-// 	  		}
-// 		  }
-// 	  };
-
-// 	  return plugin;
-// 	})();
-// })(jQuery);
