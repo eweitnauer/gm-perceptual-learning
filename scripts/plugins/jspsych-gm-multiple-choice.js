@@ -80,6 +80,7 @@
 	  	 ,userResult : null
 	  	 ,accuracy : false
 	  	 ,correctAction : null
+	  	 ,task_id: (part-1)%trial.parts.length
 	  	};
 
 	  	var container = display_element.append('div').attr('id', 'container');
@@ -321,7 +322,7 @@
 		  	}
 		  	setTimeout(finish, plugin.timing_post_trial);
 		  	var data = $.extend({}, trial, partData);
-		  	if (plugin.save_trial) plugin.save_trial(block.trial_idx, data, finish);
+		  	if (plugin.save_trial) plugin.save_trial(part-1, data, finish);
 		  	finish();
 		  }
 

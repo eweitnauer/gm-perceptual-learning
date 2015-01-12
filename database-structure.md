@@ -7,6 +7,7 @@ create table gm_pl_v1_0 (
   stage VARCHAR(50) NOT NULL,
   cond VARCHAR(200),
   trial_idx INT,
+  task_id INT,
   task VARCHAR(200),
   optionA VARCHAR(200),
   optionB VARCHAR(200),

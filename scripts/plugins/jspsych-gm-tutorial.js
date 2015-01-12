@@ -26,8 +26,10 @@
 		// the key is the name of the action,
 		// the value is the description you want to give it
 		var instructions = {
-			'direct factor': 'Drag one variable onto another identical variable to factor.'
-		 ,'distribute': 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
+			'commute terms': 'Drag a term in a sum or product to its new location to commute terms.'
+		, 'invert terms across equation': 'In many situations, you can drag a term to the other side of the equation. Try it.'
+		, 'direct factor': 'Drag one variable onto another identical variable to factor.'
+		, 'distribute': 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
 		}
 
 		plugin.create = function(params) {
@@ -139,6 +141,7 @@
   			if (finished) return;
 	  		lastActionTaken = event.action;
   			if (mouse_is_up) checkAnswer(lastActionTaken.name);
+  			console.log(lastActionTaken.name);
 	  	}
 
 	  	function mouse_down(event) {

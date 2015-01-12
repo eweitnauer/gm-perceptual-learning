@@ -54,6 +54,7 @@
 			 ,time_to_submit : null
 			 ,userInput : null
 			 ,accuracy : false
+			 ,task_id: block.trial_idx
 			};
 
 			var container = display_element.append('div').attr('id', 'container');
