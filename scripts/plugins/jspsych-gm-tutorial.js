@@ -68,7 +68,6 @@
 			   ,finished = false;
 
 			function appendInstructions() {
-				// container.append(instructions[correctAction]);
 				container.append('div')
 					.attr('id', 'welcome')
 					.append('p')
@@ -129,13 +128,13 @@
 	  	}
 
 	  	function problemAnsweredCorrectly() {
-	  		correctTransition(eq.div, 1000)
-	  		  .each('end', function() { setTimeout(finish, 2000) });
+	  		correctTransition(eq.div, 100)
+	  		  .each('end', function() { setTimeout(finish, 600) });
 	  	}
 
 	  	function problemAnsweredIncorrectly() {
-			  wrongTransition(eq.div, 1000)
-			  	.each('end', function() {	setTimeout(retry, 2000) });
+			  wrongTransition(eq.div, 100)
+			  	.each('end', function() {	setTimeout(retry, 600) });
 	  	}
 
 	  	function on_change(event) {

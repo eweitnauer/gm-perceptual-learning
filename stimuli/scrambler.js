@@ -13,9 +13,9 @@ function permutation(arr) {
   var a = [];
   for (var n=0; n<N; n++) {
     var i = Math.round(Math.random()*n);
-    var v = arr[i];
+    var v = a[i];
     a[i] = arr[n];
-    a[n] = v;
+    if (v) a[n] = v;
   }
   return a;
 }

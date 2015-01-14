@@ -15,7 +15,7 @@ b=a/x,x=a/b,w=12/x,x=12/w,s=10/x,x=10/s
 -a/x=b,-a/b=x,-a/x=14,-a/14=x,-10/x=e,-10/e=x
 (x-a)*b=c,x=c/b+a,(x-g)*t=14,x=14/t+g,(x-n)*13=p,x=p/13+n
 b*(a+x)=c,x=c/b-a,d*(3+x)=k,x=k/d-3,t*(15+x)=w,x=w/t-15
--a/x=1/b,-ab=x,-14/x=1/q,-14q=x,-b/x=1/12,-b12=x
+-a/x=1/b,-ab=x,-14/x=1/q,-14q=x,-b/x=1/12,-b*12=x
 b/c=a/x,x=(ac)/b,16/m=c/x,x=(cm)/16,15/v=n/x,x=(nv)/15
 -b/c=a/x,x=(ac)/-b,-n/r=4/x,x=(4r)/-n,-r/11=p/x,x=(p11)/-r
 c=a/x-b,x=a/(c+b),e=c/x-10,x=c/(e+10),9=e/x-h,x=e/(9+h)
