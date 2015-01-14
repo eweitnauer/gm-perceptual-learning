@@ -30,6 +30,7 @@
 		, 'invert terms across equation': 'In many situations, you can drag a term to the other side of the equation. Try it.'
 		, 'direct factor': 'Drag one variable onto another identical variable to factor.'
 		, 'distribute': 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
+		, 'alt-select': 'To move an entire sum or product, hold the alt-key and then drag any of the terms. Try dragging the sum in the denominator to the other side.'
 		}
 
 		plugin.create = function(params) {
@@ -141,7 +142,6 @@
   			if (finished) return;
 	  		lastActionTaken = event.action;
   			if (mouse_is_up) checkAnswer(lastActionTaken.name);
-  			console.log(lastActionTaken.name);
 	  	}
 
 	  	function mouse_down(event) {
@@ -151,16 +151,20 @@
 		  function mouse_up(event) {
 	  		mouse_is_up = true;
 	  		if (!lastActionTaken) return;
-	  		checkAnswer(lastActionTaken.name);
+	  		if (finished) return;
+	  		checkAnswer(lastActionTaken);
 		  }
 
-			function checkAnswer(actionName) {
-				console.log(mouse_is_up);
+			function checkAnswer(action) {
 				finished = true;
-				if (actionName!==correctAction)
-					problemAnsweredIncorrectly();
-				else
+				eq.dl.getLastView().interactive(false);
+				console.log(mouse_is_up);
+				if (action.name===correctAction || correctAction==='alt-select' && action.name==='invert terms across equation') {
 					problemAnsweredCorrectly();
+				} else {
+					finished = false;
+					problemAnsweredIncorrectly();
+				}
 			}
 
 			function retry() {

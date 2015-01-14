@@ -43,27 +43,29 @@ var tutorialBlock = { type: 'gm-tutorial'
                                 ,{expression: '2x+2x'
                                  ,correctAction: 'direct factor'}
                                 ,{expression: '(x+y)*z'
-                                 ,correctAction: 'distribute'}]}
+                                 ,correctAction: 'distribute'}
+                                ,{expression: 'x/(z+1)=y'
+                                 ,correctAction: 'alt-select'}]}
 
 function startExperiment(pretestBlock, posttestBlock, testingBlock) {
   jsPsych.init({
     display_element: $('#jspsych_target')
   , experiment_structure: [
-      welcomeBlock
-    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-        { url: "html-templates/pre-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , pretestBlock
-    , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
-        { url: "html-templates/tutorial-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , tutorialBlock
+    //   welcomeBlock
+    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+    //     { url: "html-templates/pre-instructions.html"
+    //     , cont_btn: "start"
+    //     , force_refresh: true
+    //     }
+    //   ]}
+    // , pretestBlock
+    // , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
+    //     { url: "html-templates/tutorial-instructions.html"
+    //     , cont_btn: "start"
+    //     , force_refresh: true
+    //     }
+    //   ]}
+     tutorialBlock
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/test-instructions.html"
         , cont_btn: "start"
