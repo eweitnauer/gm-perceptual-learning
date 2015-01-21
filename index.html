@@ -5,7 +5,7 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/graspablemath.js"></script>
+<script src="libs/graspablemath.min.js"></script>
 <!-- Load the jspsych library and plugins -->
 <script src="stimuli/scrambler.js"></script>
 <script src="scripts/jspsych.js"></script>
@@ -36,21 +36,32 @@ var welcomeMessage = '<div id="welcome"><p>Welcome to the experiment. Press ente
 var welcomeBlock = { type: 'text', text: [welcomeMessage] };
 
 var tutorialBlock = { type: 'gm-tutorial'
-                     ,problems: [{expression: 'a+b+c'
-                                 ,correctAction: 'commute terms'}
-                                ,{expression: 'x+2=0'
-                                 ,correctAction: 'invert terms across equation'}
-                                ,{expression: '2x+2x'
-                                 ,correctAction: 'direct factor'}
-                                ,{expression: '(x+y)*z'
-                                 ,correctAction: 'distribute'}
-                                ,{expression: 'x/(z+1)=y'
-                                 ,correctAction: 'alt-select'}]}
+                     , problems: [
+  { expression: 'a+b+c'
+  , correctAnswers: ['a+c+b', 'b+c+a', 'b+a+c']
+  , instructions: 'Drag a term in a sum or product to its new location to commute terms.'
+  }, {
+    expression: 'x+2=0'
+  , correctAnswers: ['x=-2', '2=-x']
+  , instructions: 'In many situations, you can drag a term to the other side of the equation. Try it.'
+  }, {
+    expression: '2x+2x'
+  , correctAnswers: ['2*(x+x)', '(x+x)*2', 'x*(2+2)', '(2+2)*x']
+  , instructions: 'Drag one variable onto another identical variable to factor.'
+  }, {
+    expression: '(x+y)*z'
+  , correctAnswers: ['(x*z+y*z)', '(z*x+z*y)']
+  , instructions: 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
+  }, {
+    expression: 'x/(z+1)=y'
+  , correctAnswers: ['x=y*(z+1)', 'x=(z+1)*y']
+  , instructions: 'To move an entire sum or product, hold the alt-key and then drag any of the terms. Try dragging the sum in the denominator to the other side.'
+}]};
 
 function startExperiment(pretestBlock, posttestBlock, testingBlock) {
   jsPsych.init({
-    display_element: $('#jspsych_target')
-  , experiment_structure: [
+     display_element: $('#jspsych_target')
+   , experiment_structure: [
       welcomeBlock
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/pre-instructions.html"
@@ -216,28 +227,15 @@ function createMainBlock(rows) {
     var scrambled = scramble([row.target, row.correct, row.bad1, row.bad2, row.bad3]);
     var problem = {};
     var choices = permutation(scrambled.slice(2));
-    var idx = Math.round(Math.random()*3);
-    choices.splice(idx, 0, scrambled[1]);
-    var letter;
-    switch(idx) {
-      case 0:
-        letter = 'A';
-        break;
-      case 1:
-        letter = 'B';
-        break;
-      case 2:
-        letter = 'C';
-        break;
-      case 3:
-        letter = 'D';
-        break;
-    }
+    var num_of_choices = 3
+    var correct_idx = Math.round(Math.random()*num_of_choices-1);
+    choices.splice(correct_idx, 0, scrambled[1]);
+    var letter = ['A', 'B', 'C', 'D'][correct_idx];
     problem.solution = scrambled[0];
     problem.A = choices[0];
     problem.B = choices[1];
     problem.C = choices[2];
-    problem.D = choices[3];
+    //problem.D = choices[3];
     problem.correctAnswer = letter;
     problems.push(problem);
   }

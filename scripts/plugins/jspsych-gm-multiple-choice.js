@@ -63,7 +63,7 @@
 	  			  A: { id: 'A', expr: d.A, dl: null, svg: null }
 	  			, B: { id: 'B', expr: d.B, dl: null, svg: null }
 	  			, C: { id: 'C', expr: d.C, dl: null, svg: null }
-	  			, D: { id: 'D', expr: d.D, dl: null, svg: null }
+	  			// , D: { id: 'D', expr: d.D, dl: null, svg: null }
 	  		  }
 	  	correctChoice = choices[d.correctAnswer];
 
@@ -123,7 +123,6 @@
 		  function chainTransition(sel, delay) {
 		  	if (sel.node().__transition__ && sel.id && sel.node().__transition__[sel.id]) {
 	  			var transition = sel.node().__transition__[sel.id];
-	  			console.log('extra delay', transition.delay + transition.duration);
 	  			delay += transition.delay + transition.duration;
 	  		}
 	  		return sel.transition().delay(delay);
@@ -164,7 +163,6 @@
 					if (choice === correctChoice)
 	  		 		userChoice.dl.setExpression(d[userChoice.id]);
 					correctAction = breadthFirstActionSearch(2);
-					console.log(correctAction);
 					ts = correctTransition(correctChoice.div, 500);
 					ts = chainTransition(ts, 1000).duration(0);
 					ts.each('end', function() {
@@ -321,7 +319,7 @@
 		  			plugin.trial(display_element, block, trial, part+1);
 		  	}
 		  	setTimeout(finish, plugin.timing_post_trial);
-		  	var data = $.extend({}, trial, partData);
+		  	var data = $.extend({}, trial, partData, d);
 		  	if (plugin.save_trial) plugin.save_trial(part-1, data, finish);
 		  	finish();
 		  }

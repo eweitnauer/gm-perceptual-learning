@@ -12,12 +12,11 @@ g.interactive {
 }
 
 .jspsych-display-element {
-  height: 1024px;
-  width: 768px;
+	height: 768px;
+	width: 1024px;
 }
 
 #jspsych_target {
-  padding: 10px;
   text-align: center;
   color: #444;
 }
@@ -66,12 +65,20 @@ g.interactive {
 	width: 500px;
 	margin: auto;
 	border: 1px solid silver;
-	height: 90px;
+	/*height: 90px;*/
+	height: 110px;
 	border-radius: 4px;
 	margin-top: 100px;
 	margin-bottom: 100px;
 	text-align: left;
 	position: relative;
+}
+
+div.solution {
+	float: right;
+	width: 45%;
+	margin: 20px auto;
+	margin-top: 150px;
 }
 
 .labeled-box {
@@ -94,6 +101,11 @@ g.interactive {
 	height: 30px;
 	margin-left: 12px;
 	position: absolute;
+}
+
+div.choices {
+	width: 45%;
+	float: left;
 }
 
 .choice svg {

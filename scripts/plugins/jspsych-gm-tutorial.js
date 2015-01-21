@@ -23,15 +23,15 @@
 
 		var plugin = {};
 
-		// the key is the name of the action,
-		// the value is the description you want to give it
-		var instructions = {
-			'commute terms': 'Drag a term in a sum or product to its new location to commute terms.'
-		, 'invert terms across equation': 'In many situations, you can drag a term to the other side of the equation. Try it.'
-		, 'direct factor': 'Drag one variable onto another identical variable to factor.'
-		, 'distribute': 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
-		, 'alt-select': 'To move an entire sum or product, hold the alt-key and then drag any of the terms. Try dragging the sum in the denominator to the other side.'
-		}
+		// // the key is the name of the action,
+		// // the value is the description you want to give it
+		// var instructions = {
+		// 	'commute terms': 'Drag a term in a sum or product to its new location to commute terms.'
+		// , 'invert terms across equation': 'In many situations, you can drag a term to the other side of the equation. Try it.'
+		// , 'direct factor': 'Drag one variable onto another identical variable to factor.'
+		// , 'distribute': 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
+		// , 'alt-select': 'To move an entire sum or product, hold the alt-key and then drag any of the terms. Try dragging the sum in the denominator to the other side.'
+		// }
 
 		plugin.create = function(params) {
 			params = jsPsych.pluginAPI.enforceArray(params, ['problems']);
@@ -45,7 +45,8 @@
 
 				var prob = params.problems[i];
 				trial.expression = prob.expression;
-				trial.correctAction = prob.correctAction
+				trial.instructions = prob.instructions;
+				trial.correctAnswers = prob.correctAnswers;
 				trials[i] = trial;
 			}
 
@@ -71,11 +72,11 @@
 				container.append('div')
 					.attr('id', 'welcome')
 					.append('p')
-					.text(instructions[correctAction]);
+					.text(trial.instructions);
 			}
 
 			function appendEqAndMakeGMExpr() {
-				var div = container.append('div').classed('choices', true);
+				var div = container.append('div').classed('tutorial', true);
 
 	  		var div2 = div.append('div')
 	  			.attr('id', 'eq')
@@ -158,7 +159,8 @@
 				finished = true;
 				eq.dl.getLastView().interactive(false);
 				console.log(mouse_is_up);
-				if (action.name===correctAction || correctAction==='alt-select' && action.name==='invert terms across equation') {
+				var ans = action.newTree.to_ascii()
+				if (trial.correctAnswers.indexOf(ans) !== -1) {
 					problemAnsweredCorrectly();
 				} else {
 					finished = false;
