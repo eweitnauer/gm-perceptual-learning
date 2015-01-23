@@ -63,7 +63,7 @@
 	  			  A: { id: 'A', expr: d.A, dl: null, svg: null }
 	  			, B: { id: 'B', expr: d.B, dl: null, svg: null }
 	  			, C: { id: 'C', expr: d.C, dl: null, svg: null }
-	  			// , D: { id: 'D', expr: d.D, dl: null, svg: null }
+	  			, D: { id: 'D', expr: d.D, dl: null, svg: null }
 	  		  }
 	  	correctChoice = choices[d.correctAnswer];
 
@@ -258,6 +258,8 @@
 					actions[0].newTree.hide_nodes();
 					actions[1].oldTree = actions[0].newTree;
 					actions[1].newTree = actions[1].oldTree;
+					actions[1].nodes = actions[1].getOldTreeNode(actions[1].nodes);
+					actions[1].target = actions[1].getOldTreeNode(actions[1].target);
 					actions[1].doInPlace();
 					actions[1].newTree.hide_nodes();
 					view.update_all();
@@ -333,12 +335,12 @@
 		  	}
 		  }
 
-		  function mouse_up(choice) {
+		  function mouse_up() {
 		  	return function() {
 		  		mouse_is_up = true;
 		  		if (partData.time_to_submit) return;
 		  		if (!userActionCount) return;
-		  		finish_interaction(choice);
+		  		finish_interaction(userChoice);
 		  	}
 		  }
 

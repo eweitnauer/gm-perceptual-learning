@@ -1,0 +1,351 @@
+incorrect spacing something to do in between nexting?
+find action function not working?
+sometimes I can't select/drag certain nodes
+sometimes the correct animation stops the program
+the incorrect animation stops the program
+substitution is activated, shouldn't be
+
+#7 : can't add brackets [fixed by removing brackets in target expression]
+#9 : can't add brackets [fixed by removing brackets in target expression]
+#11: inversion/commute [changed order of terms in commute]
+#13: can't add brackets [removed brackets in target expression]
+#15: finds 2-step solution before 1-step solution [swapped terms on one side]
+#18: requires 2-step solution [swapped numerator and denominator in target, changed one base and order]
+#19: extra brackets [removed brackets]
+#20: weird brackets, disappear on correct answer, though
+#24: I think this is just wrong [removed extra term, but still a 2-step problem, so removed]
+#26: for some reason can't automatically find solution [fixed issue in GM, branch fix-eqinvert-insertion]
+#28: not solveable [i took out extra brackets, but this cannot be solved because you can't invert the div in 8*(3/4), would need to fix in GM]
+#29: finds 2-step solution first [changed order of terms in solution (left side of eq)]
+#30: data missing from main.csv [added stuff to choices, also removed optional brackets]
+#31: data missing from main.csv [fixed a choice, but is unsolvable unless comment from #28 is implemented]
+#32: can't find solution/no 1-step solution [removed optional brackets in choices, swapped places of terms in target to avoid commuting]
+#34: finds 2-step solution first [swapped places of terms in target to avoid commuting]
+#37: 2-step solution found first [swapped places of terms in target to avoid commuting]
+#41: need alt-select to solve
+#45: need alt-select to solve
+#47: need direct factoring to solve
+#49: need direct factoring to solve, finds 2-step solution first
+#51: need direct factoring to solve
+#53: nedd direct factoring to solve
+#55: direct factoring
+#58: direct factoring
+#61: direct factoring
+#62: need shift-select to solve
+#63: extra brackets [removed brackets from solution]
+#65: 2-step solution, also there is a bug in direct factoring.
+	(are we allowing direct factoring across an equation?) [fixed bug in direct factoring getAllAvailableActions, ranges have to be on same side of equation]
+#68: alt-select, multi-step solution
+
+--------------------------------------------------------------
+2nd round:
+
+pretest:
+
+check #16: "-b12=x" "recorded_answer":"-b*12=x"
+
+main:
+#0:
+
+#1: does this weird animation: for "commuting," it highlights a terms and then moves the equals sign
+
+#2:
+
+check #3: we should take the parentheses out of the bases.  this breaks currently.
+
+#4:
+
+#5:
+
+#6:
+
+#7:
+
+#8:
+
+check #9: 2 bases are basically the same (sides swapped).
+
+check #10: 2 bases are basically the same (sides swapped).
+
+#11:
+
+#12:
+
+#13:
+
+check #14: 2 bases are basically the same.
+
+#15:
+
+check #16: 2 bases are basically the same.
+
+check #17: no correct base
+
+#18:
+
+#19:
+
+check #20: should remove parens from base
+
+#21:
+
+chcek #22: solution has variable 'a' but only one base has 'a' in it??
+
+#23:
+
+remove #24: 2-step solution, unsolveable by user
+
+#25:
+
+look at later #26: for some reason the computer can't solve it, but we should remove the unnecessary brackets anyway, probably will solve the problem
+
+#27:
+
+check #28: unsolvable by user unless we modify the correct base
+
+check again after merging #29: because of spacing, the inverted term is automatically put into the fraction.  it must be taken out of the fraction to get this correct, kind of awkward.  this may not matter much, though
+
+#30:
+
+needs new invert feature #31: product & fraction should be re-arranged so it is solveable by the user
+
+check again after merging #32: same as 29
+
+#33:
+
+#34:
+
+#35:
+
+#36:
+
+#37:
+
+#38:
+
+#39:
+
+#40:
+
+#41:
+
+#42:
+
+#43:
+
+#44:
+
+#45:
+
+#46:
+
+#47:
+
+#48:
+
+check again after merging (to be careful) #49: perhaps the associate out --> factor is to ambiguous for the user to think of.  not being able to factor from the fraction is a GM restriction.  although, going the other way works fine
+
+#50:
+
+#51:
+
+#52:
+
+#53:
+
+#54:
+
+#55:
+
+#56:
+
+#57:
+
+#58:
+
+#59:
+
+#60:
+
+#61:
+
+#62: bug (fixed in fix-eqinvert-insertion)
+
+#63:
+
+#64:
+
+#65: bug (should be fixed in fix-eqinvert-insertion)
+	check this and #62 once the branches have been merged correctly.
+
+#66:
+
+#67:
+
+remove :-( #68: multi-step solution unsolveable by user
+
+-------------------------------------------------------------
+
+- there are 4 unique options
+- each problem is solveable by the user and the computer "logically"
+- all animations decently convey transformation
+- there are not multiple solutions
+- the script does not break
+
+need to disable substitution
+
+need stimuli with only commuting or association (fractions)
+
+3rd round:
+
+#0:
+
+#1:
+
+#2:
+
+#3:
+
+#4:
+
+#5:
+
+#6:
+
+#7:
+
+#8:
+
+#9:
+
+#10:
+
+#11:
+
+#12: removed brackets from all left-side expressions
+
+#13:
+
+#14:
+
+#15:
+
+#16:
+
+#17:
+
+#18:
+
+#19:
+
+#20:
+
+#21:
+
+#22:
+
+#23:
+
+#24:
+
+#25:
+
+#26:
+
+#27:
+
+#28:
+
+#29:
+
+#30: should remove because can't be done by user (change this)
+
+#31:
+
+#32:
+
+#33:
+
+#34:
+
+#35:
+
+#36:
+
+#37:
+
+#38:
+
+#39:
+
+#40: bug in numerator splitting needs to be fixed
+
+#41:
+
+#42:
+
+#43:
+
+#44: bug in numerator splitting needs to be fixed
+
+#45: because mouse-up/mouse-down events are associated to the svgs, you can perform a correct action, release in another box, trigger an incorrect transition, break code (fixed: don't allow mouse up when choice is different than mouse down)
+
+#46:
+
+#47:
+
+#48:
+
+#49:
+
+#50: has visual bug (direct factoring)
+
+#51:
+
+#52:
+
+#53:
+
+#54:
+
+#55:
+
+#56:
+
+#57:
+
+#58:
+
+#59:
+
+#60:
+
+#61:
+
+#62:
+
+#63:
+
+#64: weird animation (negative sign)
+
+#65:
+
+#66:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

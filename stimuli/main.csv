@@ -11,7 +11,7 @@ c+b=x/a,c=x/a-b,c=x/a+b,-c=x/a-b,c=x*a-b
 c-b=x/a,c=b+x/a,c=x/a-b,c=(x+b)/a,c=b-x/a
 (c+b)/a=x,c+b=x*a,c-b=x*a,c+b=x/a,c+b=a/x
 c+b=a*x,c=a*x-b,c=a/x-b,c=a*x+b,-c=a*x-b
-(c-b)/a=x,(c-b)=x*a,(c+b)=x*a,(c-b)=x/a,(c-b)=-x/a
+(c-b)/a=x,c-b=x*a,c+b=x*a,c-b=x/a,c-b=-x/a
 c-b=x*a,c=b+x*a,c=b-x*a,c=b+x/a,-c=b+x*a
 x=b*c+a,x-a=b*c,x+a=b*c,x+b*c=a,x*a=b*c
 x-a=c*b,(x-a)/b=c,(x+a)/b=c,(x-a)*b=c,(x-a)/b=-c
