@@ -337,8 +337,11 @@ need stimuli with only commuting or association (fractions)
 
 
 
+Removed #9, it was too similar to #7.
 
+Removed #46, we don't need stacked fractions (was c/(1/a-b)=x,c=(1/a-b)x,-c=(1/a-b)x,c=(1/a+b)x,c=(1/a-b)/x)
 
+Maybe do something like: (c-b)*a=x,((c-b)*a)/x=1,(a*c+a*b)=x,x*(c-b)=a,c-b=x*a
 
 
 

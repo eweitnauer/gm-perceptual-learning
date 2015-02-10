@@ -92,10 +92,7 @@
 			}
 
 			function addEventListeners() {
-				eq.dl.events.on('change', on_change);
-				eq.svg.on('mousedown', mouse_down)
-				eq.svg.on('mouseup', mouse_up);
-
+				eq.dl.events.on('end-of-interaction', checkAnswer);
 			}
 
 			function chainTransition(sel, delay) {
@@ -129,37 +126,19 @@
 	  	}
 
 	  	function problemAnsweredCorrectly() {
-	  		correctTransition(eq.div, 100)
-	  		  .each('end', function() { setTimeout(finish, 600) });
+	  		correctTransition(eq.div, 200)
+	  		  .each('end', function() { setTimeout(finish, 1000) });
 	  	}
 
 	  	function problemAnsweredIncorrectly() {
-			  wrongTransition(eq.div, 100)
-			  	.each('end', function() {	setTimeout(retry, 600) });
+			  wrongTransition(eq.div, 200)
+			  	.each('end', function() {	setTimeout(retry, 1000) });
 	  	}
 
-	  	function on_change(event) {
-  			if (finished) return;
-	  		lastActionTaken = event.action;
-  			if (mouse_is_up) checkAnswer(lastActionTaken.name);
-	  	}
-
-	  	function mouse_down(event) {
-	  		mouse_is_up = false;
-		  }
-
-		  function mouse_up(event) {
-	  		mouse_is_up = true;
-	  		if (!lastActionTaken) return;
-	  		if (finished) return;
-	  		checkAnswer(lastActionTaken);
-		  }
-
-			function checkAnswer(action) {
+			function checkAnswer(event) {
 				finished = true;
 				eq.dl.getLastView().interactive(false);
-				console.log(mouse_is_up);
-				var ans = action.newTree.to_ascii()
+				var ans = eq.dl.getLastModel().to_ascii()
 				if (trial.correctAnswers.indexOf(ans) !== -1) {
 					problemAnsweredCorrectly();
 				} else {

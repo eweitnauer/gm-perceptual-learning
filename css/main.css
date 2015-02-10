@@ -7,6 +7,12 @@ g.math text {
   dominant-baseline: alphabetic;
 }
 
+#welcome {
+	font-size: 20px;
+	width: 650px;
+	margin: auto;
+}
+
 g.interactive {
   cursor: pointer;
 }

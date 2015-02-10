@@ -5,7 +5,7 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/graspablemath.min.js"></script>
+<script src="libs/graspablemath-new.js"></script>
 <!-- Load the jspsych library and plugins -->
 <script src="stimuli/scrambler.js"></script>
 <script src="scripts/jspsych.js"></script>
@@ -26,10 +26,11 @@
 
 <script>
 
-test_mode = true;
+test_mode = false;
 subject_id = gmath.uid();
 
 gmath.AlgebraView.defaultOptions.inactive_color = gmath.AlgebraView.defaultOptions.color;
+gmath.DerivationList.defaultOptions.substitution_on = false;
 
 var welcomeMessage = '<div id="welcome"><p>Welcome to the experiment. Press enter to begin.</p></div>';
 
@@ -47,10 +48,10 @@ var tutorialBlock = { type: 'gm-tutorial'
   }, {
     expression: '2x+2x'
   , correctAnswers: ['2*(x+x)', '(x+x)*2', 'x*(2+2)', '(2+2)*x']
-  , instructions: 'Drag one variable onto another identical variable to factor.'
+  , instructions: 'Drag one variable onto another identical variable and hold it there to factor.'
   }, {
     expression: '(x+y)*z'
-  , correctAnswers: ['(x*z+y*z)', '(z*x+z*y)']
+  , correctAnswers: ['x*z+y*z', 'z*x+z*y']
   , instructions: 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
   }, {
     expression: 'x/(z+1)=y'
@@ -62,28 +63,28 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
   jsPsych.init({
      display_element: $('#jspsych_target')
    , experiment_structure: [
-    //   welcomeBlock
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/pre-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    // , pretestBlock
-    // , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/tutorial-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    // , tutorialBlock
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/test-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-     testingBlock
+      welcomeBlock
+    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/pre-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , pretestBlock
+    , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
+        { url: "html-templates/tutorial-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , tutorialBlock
+    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/test-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , testingBlock
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/post-instructions.html"
         , cont_btn: "start"
@@ -91,7 +92,7 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
         }
       ]}
     , posttestBlock
-    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+    , {type: "html", title: "Debriefing", timing_post_trial: 500, pages: [
         { url: "html-templates/finished.html"
         , force_refresh: true
         }
@@ -179,10 +180,14 @@ function parsePrePostCSV(callback) {
 function createPrePostBlocks(rows) {
   var pretestProblems = []
      ,posttestProblems = [];
-  for (var i=0; i<rows.length; i++) {
-    var row = rows[i];
-    var option1 = {eq:row.problem1, 'var':'x', sol:row.solution1}
-       ,option2 = {eq:row.problem2, 'var':'x', sol:row.solution2};
+  var scrambledRows = permutation(rows);
+  for (var i=0; i<2/*rows.length*/; i++) {
+    var row = scrambledRows[i];
+    var idx = rows.indexOf(row);
+    var option1 = { eq:row.problem1, 'var':'x', sol:row.solution1
+                  , task_id: idx}
+       ,option2 = { eq:row.problem2, 'var':'x', sol:row.solution2
+                  , task_id: idx};
     if (Math.random()>=0.5) {
       pretestProblems.push(option1); posttestProblems.push(option2);
     } else {
@@ -220,39 +225,43 @@ function parseMainCSV(callback) {
 }
 
 function createMainBlock(rows) {
+  var _1st = 0;
   var problems = [];
   var scrambledRows = permutation(rows);
-  if (test_mode) {
-    for (var i=0; i<rows.length; i++) {
-      var row = rows[i]
-         ,problem = {};
-      problem.solution = row.target;
-      problem.A = row.correct;
-      problem.B = row.bad1;
-      problem.C = row.bad2;
-      problem.D = row.bad3;
-      problem.correctAnswer = 'A';
-      problems.push(problem);
-    }
-  } else {
-    for (var i=0; i<scrambledRows.length; i++) {
+  // if (test_mode) {
+  //   for (var i=_1st; i<rows.length; i++) {
+  //     var row = rows[i]
+  //        ,problem = {};
+  //     problem.solution = row.target;
+  //     problem.A = row.correct;
+  //     problem.B = row.bad1;
+  //     problem.C = row.bad2;
+  //     problem.D = row.bad3;
+  //     problem.number = i+1;
+  //     problem.correctAnswer = 'A';
+  //     problems.push(problem);
+  //   }
+  // } else {
+    for (var i=_1st; i<scrambledRows.length; i++) {
       var row = scrambledRows[i];
+      var row_idx = rows.indexOf(row);
       var scrambled = scramble([row.target, row.correct, row.bad1, row.bad2, row.bad3]);
       var problem = {};
       var choices = permutation(scrambled.slice(2));
       var num_of_choices = 3
       var correct_idx = Math.round(Math.random()*num_of_choices-1);
       choices.splice(correct_idx, 0, scrambled[1]);
-      var letter = ['A', 'B', 'C', 'D'][correct_idx];
+      var letter = ['A', 'B', 'C'][correct_idx];
       problem.solution = scrambled[0];
       problem.A = choices[0];
       problem.B = choices[1];
       problem.C = choices[2];
       //problem.D = choices[3];
       problem.correctAnswer = letter;
+      problem.task_id = row_idx;
       problems.push(problem);
     }
-  }
+  //}
 
   var testingBlock = {
     type: 'gm-multiple-choice'

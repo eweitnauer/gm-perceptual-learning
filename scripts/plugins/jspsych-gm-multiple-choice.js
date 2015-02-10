@@ -45,7 +45,9 @@
 				part.A = prob.A;
 				part.B = prob.B;
 				part.C = prob.C;
-				part.D = prob.D;
+				part.task_id = prob.task_id;
+				//part.D = prob.D;
+				part.number = prob.number;
 				part.correctAnswer = prob.correctAnswer;
 				part.data = (typeof params.data === 'undefined') ? {} : params.data[i];
 				parts[i] = part;
@@ -57,19 +59,25 @@
 
 	  plugin.trial = function(display_element, block, trial, part) {
 	  	display_element = part===1 ? d3.select(display_element[0]) : display_element;
+	  	{
+	  		display_element.append('button').text('next').on('click', function() {
+	  			display_element.html('');
+	  			plugin.trial(display_element, block, trial, part+1);
+	  		});
+	  	}
 	  	var d = trial.parts[(part-1)%trial.parts.length];
 	  	var solution = d.solution;
+	  	console.log(d.number);
 	  	choices = {
 	  			  A: { id: 'A', expr: d.A, dl: null, svg: null }
 	  			, B: { id: 'B', expr: d.B, dl: null, svg: null }
 	  			, C: { id: 'C', expr: d.C, dl: null, svg: null }
-	  			, D: { id: 'D', expr: d.D, dl: null, svg: null }
+	  			//, D: { id: 'D', expr: d.D, dl: null, svg: null }
 	  		  }
 	  	correctChoice = choices[d.correctAnswer];
 
 	  	var userChoice
 	  	  , userActionCount = 0
-	  	  , mouse_is_up = true
 	  	  , finished = false;
 
 	  	var partData = {
@@ -80,7 +88,7 @@
 	  	 ,userResult : null
 	  	 ,accuracy : false
 	  	 ,correctAction : null
-	  	 ,task_id: (part-1)%trial.parts.length
+	  	 ,task_id: d.task_id
 	  	};
 
 	  	var container = display_element.append('div').attr('id', 'container');
@@ -116,7 +124,9 @@
 		  	d3.values(choices).forEach(function(choice) {
 		  		choice.dl.events.on('change', on_change(choice));
 		  		choice.svg.on('mousedown', mouse_down(choice));
-		  		choice.svg.on('mouseup', mouse_up(choice));
+		  		//choice.svg.on('mouseup', mouse_up(choice));
+		  		choice.dl.events.on('end-of-interaction', function()
+		  			{ finish_interaction(userChoice) });
 		  	});
 		  }
 
@@ -196,12 +206,9 @@
 			var findAction = function(tree, targetAscii, currDepth, maxDepth) {
 				if (tree.to_ascii()===targetAscii) return [];
 				if (currDepth>maxDepth) return false;
-				var treeNodes = tree.select_all().slice(1).filter(function(x){return x.is_group('add')
-			                                                                    || x.is_group('sub')
-			                                                                    || x.is_group('num')
-			                                                                    || x.is_group('var')
-			                                                                    || x.is_group('mul')
-			                                                                    || x.is_group('div')});  // fix this to account for mul-divs etc.
+				var treeNodes = tree.select_all().slice(1).filter(function(x) {
+					return x.is_group('add', 'sub', 'num', 'var', 'mul', 'div');
+				});
 				var moveActions = [];
 				for (var i=0; i<treeNodes.length; i++) {
 					moveActions = moveActions.concat(tree.getMoveActions([treeNodes[i]]));
@@ -210,6 +217,7 @@
 				for (var i=0; i<moveActions.length; i++) {
 					var action = moveActions[i];
 					action.run();
+					action.newTree.finishInteraction();
 					var res = findAction(action.newTree, targetAscii, currDepth+1, maxDepth, (currDepth+1)%2===0);
 					if (res) actions.push([action].concat(res));//return [action].concat(res);
 				}
@@ -235,6 +243,7 @@
 					view.options.dur = 1000;
 					view.options.easing_fn = 'quad-in-out';
 					action.doInPlace();
+					action.newTree.finishInteraction();
 					action.newTree.hide_nodes();
 					view.update_all();
 					setTimeout(function() {
@@ -255,12 +264,14 @@
 					view.options.dur = 1000;
 					view.options.easing_fn = 'quad-in-out';
 					actions[0].doInPlace();
+					actions[0].newTree.finishInteraction();
 					actions[0].newTree.hide_nodes();
 					actions[1].oldTree = actions[0].newTree;
 					actions[1].newTree = actions[1].oldTree;
 					actions[1].nodes = actions[1].getOldTreeNode(actions[1].nodes);
 					actions[1].target = actions[1].getOldTreeNode(actions[1].target);
 					actions[1].doInPlace();
+					actions[1].newTree.finishInteraction();
 					actions[1].newTree.hide_nodes();
 					view.update_all();
 					setTimeout(function() {
@@ -306,7 +317,6 @@
 	  		return function(evt) {
 	  			if (finished) return;
 		  		userActionCount++;
-	  			if (mouse_is_up) finish_interaction(choice);
 		  	}
 	  	}
 
@@ -328,24 +338,16 @@
 
 		  function mouse_down(choice) {
 		  	return function() {
-		  		mouse_is_up = false;
 		  		if (userActionCount) return;
 		  		userChoice = choice;
 		  		partData.time_to_action = Date.now() - startTime;
 		  	}
 		  }
 
-		  function mouse_up() {
-		  	return function() {
-		  		mouse_is_up = true;
-		  		if (partData.time_to_submit) return;
-		  		if (!userActionCount) return;
-		  		finish_interaction(userChoice);
-		  	}
-		  }
-
 		  function finish_interaction(choice) {
+	  		if (finished || userActionCount === 0) return;
 		  	finished = true;
+		  	if (partData.time_to_submit) return;
 		  	d3.values(choices).forEach(function(choice) {
 	  			choice.dl.getLastView().interactive(false);
 	  		});

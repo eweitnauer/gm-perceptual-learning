@@ -36,6 +36,7 @@
 				trials[i].var = prob.var;
 				trials[i].sol = prob.sol;
 				trials[i].stage = params.stage;
+				trials[i].task_id = prob.task_id;
 
 				trials[i].data = (typeof params.data === 'undefined') ? {} : params.data[i];
 			}
@@ -54,7 +55,7 @@
 			 ,time_to_submit : null
 			 ,userInput : null
 			 ,accuracy : false
-			 ,task_id: block.trial_idx
+			 ,task_id: trial.task_id
 			};
 
 			var container = display_element.append('div').attr('id', 'container');
