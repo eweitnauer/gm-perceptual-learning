@@ -59,15 +59,14 @@
 
 	  plugin.trial = function(display_element, block, trial, part) {
 	  	display_element = part===1 ? d3.select(display_element[0]) : display_element;
-	  	{
-	  		display_element.append('button').text('next').on('click', function() {
-	  			display_element.html('');
-	  			plugin.trial(display_element, block, trial, part+1);
-	  		});
-	  	}
+	  	// { // next button for debugging
+	  	// 	display_element.append('button').text('next').on('click', function() {
+	  	// 		display_element.html('');
+	  	// 		plugin.trial(display_element, block, trial, part+1);
+	  	// 	});
+	  	// }
 	  	var d = trial.parts[(part-1)%trial.parts.length];
 	  	var solution = d.solution;
-	  	console.log(d.number);
 	  	choices = {
 	  			  A: { id: 'A', expr: d.A, dl: null, svg: null }
 	  			, B: { id: 'B', expr: d.B, dl: null, svg: null }

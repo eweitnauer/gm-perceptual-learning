@@ -5,7 +5,7 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/graspablemath-new.js"></script>
+<script src="libs/graspablemath.min.js"></script>
 <!-- Load the jspsych library and plugins -->
 <script src="stimuli/scrambler.js"></script>
 <script src="scripts/jspsych.js"></script>
@@ -106,7 +106,6 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
 }
 
 function pre_post_saver(idx, trial, finished_callback) {
-  console.log(trial, trial.stage);
   var saveData = {
     // exp_id: experiment_id
     stage: trial.stage
@@ -249,7 +248,7 @@ function createMainBlock(rows) {
       var problem = {};
       var choices = permutation(scrambled.slice(2));
       var num_of_choices = 3
-      var correct_idx = Math.round(Math.random()*num_of_choices-1);
+      var correct_idx = Math.round(Math.random()*(num_of_choices-1));
       choices.splice(correct_idx, 0, scrambled[1]);
       var letter = ['A', 'B', 'C'][correct_idx];
       problem.solution = scrambled[0];
