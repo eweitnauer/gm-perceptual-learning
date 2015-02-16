@@ -13,6 +13,16 @@ g.math text {
 	margin: auto;
 }
 
+#participant_id {
+	color: gray;
+	text-align: center;
+}
+
+#participant_id span {
+	text-transform: none;
+	font-weight: bold;
+}
+
 g.interactive {
   cursor: pointer;
 }

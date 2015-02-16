@@ -21,6 +21,7 @@ documentation: https://github.com/jodeleeuw/jsPsych/wiki/jspsych-html
                 trials.push({
                     type: "html",
                     url: params.pages[i].url,
+                    data: params.pages[i].data,
                     cont_key: params.pages[i].cont_key || params.cont_key,
                     cont_btn: params.pages[i].cont_btn || params.cont_btn,
                     timing_post_trial: params.pages[i].timing_post_trial || (typeof params.timing_post_trial === 'undefined') ? 1000 : params.timing_post_trial,
@@ -44,6 +45,9 @@ documentation: https://github.com/jodeleeuw/jsPsych/wiki/jspsych-html
             }
 
             display_element.load(trial.url, function() {
+                if (trial.data) for (var key in trial.data) {
+                  document.getElementById(key).innerHTML = trial.data[key];
+                }
                 var t0 = (new Date()).getTime();
                 var finish = function() {
                     if (trial.check_fn && !trial.check_fn(display_element)) return;

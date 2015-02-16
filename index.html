@@ -27,12 +27,12 @@
 <script>
 
 test_mode = false;
-subject_id = gmath.uid();
+subject_id = gmath.uid().substr(1,6).toUpperCase();
 
 gmath.AlgebraView.defaultOptions.inactive_color = gmath.AlgebraView.defaultOptions.color;
 gmath.DerivationList.defaultOptions.substitution_on = false;
 
-var welcomeMessage = '<div id="welcome"><p>Welcome to the experiment. Press enter to begin.</p></div>';
+var welcomeMessage = '<div id="welcome"><p id="participant_id">Participant ID: <span>'+subject_id+'</span></p><p>Welcome to the experiment.</br>Press enter to begin.</p></div>';
 
 var welcomeBlock = { type: 'text', text: [welcomeMessage] };
 
@@ -63,22 +63,22 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
   jsPsych.init({
      display_element: $('#jspsych_target')
    , experiment_structure: [
-      welcomeBlock
-    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-        { url: "html-templates/pre-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , pretestBlock
-    , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
-        { url: "html-templates/tutorial-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , tutorialBlock
-    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+    //   welcomeBlock
+    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+    //     { url: "html-templates/pre-instructions.html"
+    //     , cont_btn: "start"
+    //     , force_refresh: true
+    //     }
+    //   ]}
+    // , pretestBlock
+    // , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
+    //     { url: "html-templates/tutorial-instructions.html"
+    //     , cont_btn: "start"
+    //     , force_refresh: true
+    //     }
+    //   ]}
+    // , tutorialBlock
+     {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/test-instructions.html"
         , cont_btn: "start"
         , force_refresh: true
@@ -95,6 +95,7 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
     , {type: "html", title: "Debriefing", timing_post_trial: 500, pages: [
         { url: "html-templates/finished.html"
         , force_refresh: true
+        , data: { subject_id: subject_id }
         }
       ]}
   ]
@@ -180,7 +181,7 @@ function createPrePostBlocks(rows) {
   var pretestProblems = []
      ,posttestProblems = [];
   var scrambledRows = permutation(rows);
-  for (var i=0; i<2/*rows.length*/; i++) {
+  for (var i=0; i<rows.length; i++) {
     var row = scrambledRows[i];
     var idx = rows.indexOf(row);
     var option1 = { eq:row.problem1, 'var':'x', sol:row.solution1

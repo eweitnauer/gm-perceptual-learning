@@ -29,8 +29,8 @@
 
 		var plugin = {};
 
-		var timeLimit = 600000;
-		var time = 0;
+		var timeLimit = 1000*60*30;
+		var start_time;
 
 		plugin.create = function(params) {
 			params = jsPsych.pluginAPI.enforceArray(params, ['problems']);
@@ -59,12 +59,20 @@
 
 	  plugin.trial = function(display_element, block, trial, part) {
 	  	display_element = part===1 ? d3.select(display_element[0]) : display_element;
+	  	if (!start_time) start_time = Date.now();
 	  	// { // next button for debugging
 	  	// 	display_element.append('button').text('next').on('click', function() {
 	  	// 		display_element.html('');
 	  	// 		plugin.trial(display_element, block, trial, part+1);
 	  	// 	});
 	  	// }
+
+	  	display_element.append('p')
+	  	  .text("Rearrange the terms of the correct candidate on the left to make it match the target on the right. Do so by dragging one of the terms.")
+	  	  .style('font-size', '16px')
+	  	  .style('color', '#666')
+	  	  .style('font-style', 'italic');
+
 	  	var d = trial.parts[(part-1)%trial.parts.length];
 	  	var solution = d.solution;
 	  	choices = {
@@ -321,13 +329,12 @@
 
 		  var afterResponse = function() {
 		  	display_element.html('');
-		  	time += partData.time_to_submit;
 		  	var tasks_to_do = 2;
 		  	function finish() {
-		  		if (time > timeLimit)
-		  			block.next();
-		  		if (--tasks_to_do === 0)
-		  			plugin.trial(display_element, block, trial, part+1);
+		  		if (--tasks_to_do === 0) {
+		  			if (Date.now() - start_time > timeLimit) block.next();
+		  			else plugin.trial(display_element, block, trial, part+1);
+		  		}
 		  	}
 		  	setTimeout(finish, plugin.timing_post_trial);
 		  	var data = $.extend({}, trial, partData, d);
