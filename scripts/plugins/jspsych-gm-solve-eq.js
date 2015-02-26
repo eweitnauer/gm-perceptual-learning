@@ -24,6 +24,7 @@
 			params = jsPsych.pluginAPI.enforceArray(params, ['problems']);
 			plugin.save_trial = params.save_trial;
 			plugin.timing_post_trial = params.timing_post_trial;
+			plugin.progress_fn = params.progress_fn;
 
 			var trials = new Array(params.problems.length);
 			for (var i=0; i<trials.length; i++) {
@@ -121,6 +122,8 @@
 				trialData.userInput = x_is_left ? 'x='+uinput : uinput+'=x';
 				trialData.accuracy = isCorrectSolution(trialData.userInput, sol);
 				display_element.html('');
+
+				if (plugin.progress_fn) plugin.progress_fn((trial.id+1)/block.trials.length);
 
 			  var tasks_to_do = 2;
 		  	function finish() {

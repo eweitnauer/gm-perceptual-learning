@@ -5,12 +5,13 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/graspablemath.min.js"></script>
+<script src="libs/gmath.min.js"></script>
 <!-- Load the jspsych library and plugins -->
 <script src="stimuli/scrambler.js"></script>
 <script src="scripts/jspsych.js"></script>
 <script src="scripts/plugins/jspsych-text.js"></script>
 <script src="scripts/plugins/jspsych-html.js"></script>
+<script src="scripts/plugins/jspsych-call-function.js"></script>
 <script src="scripts/plugins/jspsych-gm-tutorial.js"></script>
 <script src="scripts/plugins/jspsych-gm-solve-eq.js"></script>
 <script src="scripts/plugins/jspsych-gm-multiple-choice.js"></script>
@@ -22,44 +23,79 @@
 <link rel="stylesheet" href="css/bootstrap-theme.css"/>
 </head>
 
+<div id="progress_bar"></div>
 <div id="jspsych_target"></div>
 
 <script>
 
-test_mode = false;
+test_mode = true;
 subject_id = gmath.uid().substr(1,6).toUpperCase();
 
 gmath.AlgebraView.defaultOptions.inactive_color = gmath.AlgebraView.defaultOptions.color;
 gmath.DerivationList.defaultOptions.substitution_on = false;
+
+function setProgress(ratio) {
+  console.log(ratio);
+  d3.select('#progress_bar')
+    .transition()
+    .styleTween('width', function (d, i, a) {
+      var from = this.style.width,
+          to = (100*ratio).toFixed(2)+'%';
+      return d3.interpolateString(from, to);
+    })
+}
+
+function clearProgress() {
+  d3.select('#progress_bar').interrupt().transition().duration(0).style('width', '0%');
+}
 
 var welcomeMessage = '<div id="welcome"><p id="participant_id">Participant ID: <span>'+subject_id+'</span></p><p>Welcome to the experiment.</br>Press enter to begin.</p></div>';
 
 var welcomeBlock = { type: 'text', text: [welcomeMessage] };
 
 var tutorialBlock = { type: 'gm-tutorial'
-                     , problems: [
-  { expression: 'a+b+c'
-  , correctAnswers: ['a+c+b', 'b+c+a', 'b+a+c']
-  , instructions: 'Drag a term in a sum or product to its new location to commute terms.'
-  }, {
-    expression: 'x+2=0'
-  , correctAnswers: ['x=-2', '2=-x']
-  , instructions: 'In many situations, you can drag a term to the other side of the equation. Try it.'
-  }, {
-    expression: '2x+2x'
-  , correctAnswers: ['2*(x+x)', '(x+x)*2', 'x*(2+2)', '(2+2)*x']
-  , instructions: 'Drag one variable onto another identical variable and hold it there to factor.'
-  }, {
-    expression: '(x+y)*z'
-  , correctAnswers: ['x*z+y*z', 'z*x+z*y']
-  , instructions: 'If a sum in parentheses is multiplied by something, drag the multiplier into the parentheses to distribute.'
-  }, {
-    expression: 'x/(z+1)=y'
-  , correctAnswers: ['x=y*(z+1)', 'x=(z+1)*y']
-  , instructions: 'To move an entire sum or product, hold the alt-key and then drag any of the terms. Try dragging the sum in the denominator to the other side.'
-}]};
+                    , progress_fn: setProgress
+                    , pages: [
+  { title: 'Moving Terms'
+  , tasks: [
+    { expression: 'a+b+c'
+    , correctAnswers: ['a+c+b', 'b+c+a', 'b+a+c']
+    , instructions: 'Drag a term in a sum or product to its new location to commute terms.'
+    },
+    { expression: 'x+2=0'
+    , correctAnswers: ['x=-2', '2=-x']
+    , instructions: 'Often you can drag a term to the other side of the equation. Try it!'
+    }
+  ] }
+, { title: 'Factoring and Distributing'
+  , tasks: [
+    { expression: '2x+3x'
+    , correctAnswers: ['x*(2+3)', '(2+3)*x']
+    , instructions: 'Drag one variable onto another identical variable and hold it there to factor.'
+    }, {
+      expression: 'x*(2+3)'
+    , correctAnswers: ['x*2+x*3', '2*x+3*x']
+    , instructions: 'Drag the variable back into the brackets to distribute it.'
+    }
+  ] }
+, { title: 'Moving Multiple Terms'
+  , tasks: [
+    { expression: '1/2 + 1/3'
+    , correctAnswers: ['(1/3)+(1/2)']
+    , instructions: 'Move a fraction by picking it up by the fraction bar. Try it!'
+    }
+  , { expression: 'x*(z+1)=b'
+    , correctAnswers: ['x=b/(z+1)']
+    , instructions: 'Bring the "(z+1)" to the other side by picking it up on one of the brackets!'
+    }
+  , { expression: 'x/(z+1)=y'
+    , correctAnswers: ['x=y*(z+1)', 'x=(z+1)*y']
+    , instructions: 'A general method to move several terms is to hold down the shift key and click the terms to select them. Then after releasing the shift key, the selected terms can be dragged. Try this to move the "z+1" over!'
+    }
+  ]}
+]};
 
-function startExperiment(pretestBlock, posttestBlock, testingBlock) {
+function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
   jsPsych.init({
      display_element: $('#jspsych_target')
    , experiment_structure: [
@@ -70,7 +106,9 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
         , force_refresh: true
         }
       ]}
+    , { type: "call-function", fn: clearProgress }
     , pretestBlock
+    , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
         { url: "html-templates/tutorial-instructions.html"
         , cont_btn: "start"
@@ -78,13 +116,15 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
         }
       ]}
     , tutorialBlock
+    , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/test-instructions.html"
         , cont_btn: "start"
         , force_refresh: true
         }
       ]}
-    , testingBlock
+    , trainingBlock
+    , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/post-instructions.html"
         , cont_btn: "start"
@@ -92,6 +132,7 @@ function startExperiment(pretestBlock, posttestBlock, testingBlock) {
         }
       ]}
     , posttestBlock
+    , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Debriefing", timing_post_trial: 500, pages: [
         { url: "html-templates/finished.html"
         , force_refresh: true
@@ -181,7 +222,7 @@ function createPrePostBlocks(rows) {
   var pretestProblems = []
      ,posttestProblems = [];
   var scrambledRows = permutation(rows);
-  for (var i=0; i<rows.length; i++) {
+  for (var i=0; i<4/*rows.length*/; i++) {
     var row = scrambledRows[i];
     var idx = rows.indexOf(row);
     var option1 = { eq:row.problem1, 'var':'x', sol:row.solution1
@@ -201,6 +242,7 @@ function createPrePostBlocks(rows) {
   , save_trial: pre_post_saver
   , problems: pretestProblems
   , stage: 'pre'
+  , progress_fn: setProgress
   };
 
   var posttestBlock = {
@@ -209,6 +251,7 @@ function createPrePostBlocks(rows) {
   , save_trial: pre_post_saver
   , problems: posttestProblems
   , stage: 'post'
+  , progress_fn: setProgress
   };
 
   return [pretestBlock, posttestBlock];
@@ -263,14 +306,15 @@ function createMainBlock(rows) {
     }
   //}
 
-  var testingBlock = {
+  var trainingBlock = {
     type: 'gm-multiple-choice'
    ,save_trial: save_main_trial
    ,timing_post_trial: 500
    ,problems: problems
+  , progress_fn: setProgress
   }
 
-  return testingBlock;
+  return trainingBlock;
 }
 
 parsePrePostCSV(function(err, rows) {

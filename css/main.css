@@ -7,6 +7,27 @@ g.math text {
   dominant-baseline: alphabetic;
 }
 
+#progress_bar {
+	width: 0%;
+	background: steelblue;
+	opacity: 0.5;
+	height: 20px;
+}
+
+#tutorial-instructions p {
+	font-size: 17px;
+	margin: 35px auto 0 auto;
+}
+
+.tutorial .choice {
+	margin: 8px auto;
+}
+
+#tutorial-instructions {
+	width: 650px;
+	margin: auto;
+}
+
 #welcome {
 	font-size: 20px;
 	width: 650px;
@@ -68,7 +89,7 @@ g.interactive {
 }
 
 .response input {
-	font-size: 40px;
+	font-size: 35px;
 	height: 60px;
 }
 

@@ -36,17 +36,17 @@
 		plugin.create = function(params) {
 			params = jsPsych.pluginAPI.enforceArray(params, ['problems']);
 			plugin.timing_post_trial = params.timing_post_trial || 0;
+			plugin.progress_fn = params.progress_fn;
 
-			var trials = new Array(params.problems.length);
+			var trials = new Array(params.pages.length);
 			for (var i=0; i<trials.length; i++) {
 				var trial = {};
 				trial.type = 'gm-tutorial';
 				trial.id = i;
 
-				var prob = params.problems[i];
-				trial.expression = prob.expression;
-				trial.instructions = prob.instructions;
-				trial.correctAnswers = prob.correctAnswers;
+				var page = params.pages[i];
+				trial.title = page.title;
+				trial.tasks = page.tasks;
 				trials[i] = trial;
 			}
 
@@ -56,43 +56,43 @@
 		plugin.trial = function(display_element, block, trial, part) {
 			display_element = d3.select(display_element[0]);
 
-			var expression = trial.expression
-			   ,correctAction = trial.correctAction;
-
 			var container = display_element.append('div').attr('id', 'container');
-			appendInstructions();
-			var eq = appendEqAndMakeGMExpr();
-			addEventListeners();
+			container.append('h2').text(trial.title);
 
-			var lastActionTaken = null
-			   ,mouse_is_up = true
-			   ,finished = false;
+			var task_count = trial.tasks.length
+			  , eqs = []
+			  , expressions = []
+			  , finished = 0;
 
-			function appendInstructions() {
+			trial.tasks.forEach(function(task, i) {
+				expressions.push(task.expression);
+				appendInstructions(task.instructions);
+				var eq = appendEqAndMakeGMExpr(task.expression);
+				eqs.push(eq);
+				eq.dl.events.on('end-of-interaction', checkAnswer.bind(this, eq, i));
+			});
+
+			function appendInstructions(text) {
 				container.append('div')
-					.attr('id', 'welcome')
+					.attr('id', 'tutorial-instructions')
 					.append('p')
-					.text(trial.instructions);
+					.text(text);
 			}
 
-			function appendEqAndMakeGMExpr() {
+			function appendEqAndMakeGMExpr(expr) {
 				var div = container.append('div').classed('tutorial', true);
 
 	  		var div2 = div.append('div')
 	  			.attr('id', 'eq')
 	  			.classed('choice', true);
 
-	  		var eq = {dl:DerivationList.createStandalone(div2.node(), {eq: expression})
+	  		var eq = {dl:DerivationList.createStandalone(div2.node(), {eq: expr})
 	  	           ,svg: div2.select('svg')
 	  	           ,div: div2}
 
 	  	  div2.append('span').text('correct').style('opacity', 0.00001);
 
 				return eq;
-			}
-
-			function addEventListeners() {
-				eq.dl.events.on('end-of-interaction', checkAnswer);
 			}
 
 			function chainTransition(sel, delay) {
@@ -125,38 +125,45 @@
 		  	return ts;
 	  	}
 
-	  	function problemAnsweredCorrectly() {
+	  	function problemAnsweredCorrectly(eq, i) {
+	  		finished++;
 	  		correctTransition(eq.div, 200)
-	  		  .each('end', function() { setTimeout(finish, 1000) });
+	  		  .each('end', function() { setTimeout(finish.bind(this, eq, i), 1000) });
 	  	}
 
-	  	function problemAnsweredIncorrectly() {
+	  	function problemAnsweredIncorrectly(eq, i) {
 			  wrongTransition(eq.div, 200)
-			  	.each('end', function() {	setTimeout(retry, 1000) });
+			  	.each('end', function() {	setTimeout(retry.bind(this, eq, i), 1000) });
 	  	}
 
-			function checkAnswer(event) {
-				finished = true;
+			function checkAnswer(eq, i) {
 				eq.dl.getLastView().interactive(false);
 				var ans = eq.dl.getLastModel().to_ascii()
-				if (trial.correctAnswers.indexOf(ans) !== -1) {
-					problemAnsweredCorrectly();
+				if (trial.tasks[i].correctAnswers.indexOf(ans) !== -1) {
+					problemAnsweredCorrectly(eq, i);
 				} else {
-					finished = false;
-					problemAnsweredIncorrectly();
+					problemAnsweredIncorrectly(eq, i);
 				}
 			}
 
-			function retry() {
-				display_element.html('');
-				container = display_element.append('div').attr('id', 'container');
-				appendInstructions();
-				eq = appendEqAndMakeGMExpr();
-				addEventListeners();
+			function retry(eq, i) {
+				neutralTransition(eq.div, 0)
+				  .each('end', function() {
+						eq.dl.setExpression(expressions[i]);
+						eq.dl.getLastView().interactive(true);
+					});
+				// display_element.html('');
+				// container = display_element.append('div').attr('id', 'container');
+				// appendInstructions();
+				// eq = appendEqAndMakeGMExpr();
+				// addEventListeners();
 			}
 
-			function finish() {
+			function finish(eq, i) {
+				if (finished < task_count) return;
+				finished = 0;
 				display_element.html('');
+				if (plugin.progress_fn) plugin.progress_fn((trial.id+1)/block.trials.length);
 				block.next()
 			}
 		};
