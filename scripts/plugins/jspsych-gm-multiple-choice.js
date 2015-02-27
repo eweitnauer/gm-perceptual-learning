@@ -29,7 +29,7 @@
 
 		var plugin = {};
 
-		var timeLimit = 1000*60*1;
+		var timeLimit = 1000*60*30;
 		var start_time;
 
 		plugin.create = function(params) {

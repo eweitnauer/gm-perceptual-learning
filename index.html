@@ -207,7 +207,7 @@ function submitToServer(data, callback) {
 }
 
 function parsePrePostCSV(callback) {
-  d3.csv('stimuli/pre-post.csv')
+  d3.csv('stimuli/pre-post-short.csv')
       .row(function(d) {return {problemBase:d.problemBase
                                ,solutionBase:d.solutionBase
                                ,problem1:d.problem1
@@ -215,14 +215,13 @@ function parsePrePostCSV(callback) {
                                ,problem2:d.problem2
                                ,solution2:d.solution2}})
       .get(callback);
-              // .get(function(err, rows) {console.log(rows)});
 }
 
 function createPrePostBlocks(rows) {
   var pretestProblems = []
      ,posttestProblems = [];
   var scrambledRows = permutation(rows);
-  for (var i=0; i<4/*rows.length*/; i++) {
+  for (var i=0; i<rows.length; i++) {
     var row = scrambledRows[i];
     var idx = rows.indexOf(row);
     var option1 = { eq:row.problem1, 'var':'x', sol:row.solution1
