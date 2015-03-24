@@ -97,14 +97,6 @@
 	  	  	var player = new GMEventRecorder(gestureData, animationSVGID);
 		  	  overlayReplayButton(player);
 		  	  players.push(player);
-		  	//   var player = new GMEventRecorder(gestureData);
-		  	//   function replay() {
-					// 	if (player.dl) player.dl.remove();
-					// 	player.replay('svg.animation', 2000, function() {
-					// 		setTimeout(replay, 10000);
-					// 	});
-					// }
-					// replay();
 	  	  }
 
 	  		var div2 = div.append('div')
@@ -123,12 +115,16 @@
 			function overlayReplayButton(player) {
 				var replaySVG = d3.select('#'+player.svgID);
 
+				player.showPreview();
+
 				var buttonSVG = replaySVG.append('svg')
 					.attr('id', 'button')
 					.attr('width', '100%')
-					.attr('height', '100%');
+					.attr('height', '100%')
+					.attr('cursor', 'pointer')
+					.style('opacity', 0.5);
 
-				buttonSVG.append('image')
+				var button = buttonSVG.append('image')
 					.attr('x', '220px')
 					.attr('y', '18px')
 					.attr('width', '75px')
@@ -144,7 +140,10 @@
 			}
 
 			function replay(player) {
-				if (player.dl) player.dl.remove();
+				if (player.dl) {
+					player.dl.remove();
+					player.dl = null;
+				}
 				player.replay(2000, function() {
 					setTimeout(function() {
 						player.dl.remove();

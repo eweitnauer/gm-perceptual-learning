@@ -7,6 +7,12 @@ GMEventRecorder = function(event_log, svgID) {
 	this.waiting_for_callback = false;
 }
 
+GMEventRecorder.prototype.showPreview = function() {
+	var temp_options = $.extend({}, this.event_log.options, {interactive: false});
+	this.dl = new DerivationList('#'+this.svgID, temp_options);
+
+}
+
 GMEventRecorder.prototype.replay = function(delay, callback) {
 	var self = this;
 	if (!this.event_log) {
