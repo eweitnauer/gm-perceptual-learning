@@ -62,12 +62,13 @@
 			var task_count = trial.tasks.length
 			  , eqs = []
 			  , expressions = []
+			  , players = []
 			  , finished = 0;
 
 			trial.tasks.forEach(function(task, i) {
 				expressions.push(task.expression);
 				appendInstructions(task.instructions);
-				var eq = appendEqAndMakeGMExpr(task.expression);
+				var eq = appendEqAndMakeGMExpr(i, task.expression, task.gestureTutorialData);
 				eqs.push(eq);
 				eq.dl.events.on('end-of-interaction', checkAnswer.bind(this, eq, i));
 			});
@@ -79,8 +80,24 @@
 					.text(text);
 			}
 
-			function appendEqAndMakeGMExpr(expr) {
+			function appendEqAndMakeGMExpr(i, expr, gestureData) {
 				var div = container.append('div').classed('tutorial', true);
+
+				var animationSVGID = 'animation'+i;
+
+	  	 	var div3 = div.append('div')
+	  	  	.attr('id', 'ex')
+	  	  	.classed('choice', true);
+
+	  	  div3.append('svg')
+	  	  	.classed('animation', true)
+	  	  	.attr('id', animationSVGID);
+
+	  	  if (gestureData) {
+	  	  	var player = new GMEventRecorder(gestureData, animationSVGID);
+		  	  overlayReplayButton(player);
+		  	  players.push(player);
+	  	  }
 
 	  		var div2 = div.append('div')
 	  			.attr('id', 'eq')
@@ -93,6 +110,49 @@
 	  	  div2.append('span').text('correct').style('opacity', 0.00001);
 
 				return eq;
+			}
+
+			function overlayReplayButton(player) {
+				var replaySVG = d3.select('#'+player.svgID);
+
+				player.showPreview();
+
+				var buttonSVG = replaySVG.append('svg')
+					.attr('id', 'button')
+					.attr('width', '100%')
+					.attr('height', '100%')
+					.attr('cursor', 'pointer')
+					.style('opacity', 0.5);
+
+				var button = buttonSVG.append('image')
+					.attr('x', '220px')
+					.attr('y', '18px')
+					.attr('width', '75px')
+					.attr('height', '75px')
+					.attr('xlink:href', 'libs/play-circled-64-000000.png');
+
+				buttonSVG.on('click', function() {
+					buttonSVG.remove();
+					setTimeout(function() {
+						replay(player);
+					}, 10);
+				});
+			}
+
+			function replay(player) {
+				if (player.dl) {
+					player.dl.remove();
+					player.dl = null;
+				}
+				player.replay(2000, function() {
+					setTimeout(function() {
+						player.dl.remove();
+						player.dl = null;
+						overlayReplayButton(player);
+						player.waiting_for_callback = false;
+						finish();
+					}, 5000);
+				});
 			}
 
 			function chainTransition(sel, delay) {
@@ -161,7 +221,16 @@
 
 			function finish(eq, i) {
 				if (finished < task_count) return;
+				if (players.some(function(player){return player.waiting_for_callback})) return;
+				console.log('finished');
 				finished = 0;
+				players.forEach(function(player) {
+					if (player.dl) {
+						console.log('quitting player', player);
+						player.stop_animation();
+						player.dl.remove()
+					}
+				});
 				display_element.html('');
 				if (plugin.progress_fn) plugin.progress_fn((trial.id+1)/block.trials.length);
 				block.next()
