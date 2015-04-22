@@ -121,8 +121,11 @@
 		  	var div = choices.append('div')
 		  	  .attr('id', 'choice'+choice.id)
 		  	  .classed('choice', true);
-		  	choice.dl = DerivationList.createStandalone(div.node(),
-		  		{eq: choice.expr, selection_color: '#0093FF'});
+		  	choice.dl = DerivationList.createStandalone(div.node(), {
+		  		eq: choice.expr
+		  	, selection_color: '#0093FF'
+		  	, enable_drag_to_join: false
+				});
 		  	div.append('span').text('correct').style('opacity', 0.00001);
 		  	choice.svg = div.select('svg');
 		  	choice.div = div;

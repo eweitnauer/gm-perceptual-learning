@@ -5,7 +5,12 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/gmath.min.js"></script>
+<script src="libs/gmath-0.1.1x.min.js"></script>
+<script src="libs/tutorial-pair.js"></script>
+<script src="libs/svg-play-button.js"></script>
+<!-- Load the event recorder and recorded tutorial gesture data -->
+<script src="libs/event-recorder.js"></script>
+<script src="stimuli/tutorial-gesture-data.js"></script>
 <!-- Load the jspsych library and plugins -->
 <script src="stimuli/scrambler.js"></script>
 <script src="scripts/jspsych.js"></script>
@@ -15,9 +20,6 @@
 <script src="scripts/plugins/jspsych-gm-tutorial.js"></script>
 <script src="scripts/plugins/jspsych-gm-solve-eq.js"></script>
 <script src="scripts/plugins/jspsych-gm-multiple-choice.js"></script>
-<!-- Load the event recorder and recorded tutorial gesture data -->
-<script src="libs/event-recorder.js"></script>
-<script src="stimuli/tutorial-gesture-data.js"></script>
 <!-- Load the stylesheet -->
 <link href="css/jspsych.css" type="text/css" rel="stylesheet"></link>
 <link rel="stylesheet" href="libs/fonts/fonts.css"/>
@@ -58,101 +60,13 @@ var welcomeBlock = { type: 'text', text: [welcomeMessage] };
 
 var tutorialBlock = { type: 'gm-tutorial'
                     , progress_fn: setProgress
-                    , pages: [
-  { title: 'Moving Terms'
-  , tasks: [
-    { expression: 'a+b+c'
-    , correctAnswers: ['a+c+b', 'b+c+a', 'b+a+c']
-    , instructions: 'Drag a term in a sum or product to its new location to commute terms.'
-    , gestureTutorialData: data[0]
-    },
-    { expression: 'x+2=0'
-    , correctAnswers: ['x=-2', '2=-x']
-    , instructions: 'Often you can drag a term to the other side of the equation. Try it!'
-    , gestureTutorialData: data[1]
-    }
-  ] }
-, { title: 'Factoring and Distributing'
-  , tasks: [
-    { expression: '2x+3x'
-    , correctAnswers: ['x*(2+3)', '(2+3)*x']
-    , instructions: 'Drag one variable onto another identical variable and hold it there to factor.'
-    , gestureTutorialData: data[2]
-    }, {
-      expression: 'x*(2+3)'
-    , correctAnswers: ['x*2+x*3', '2*x+3*x']
-    , instructions: 'Drag the variable back into the brackets to distribute it.'
-    , gestureTutorialData: data[3]
-    }
-  ] }
-, { title: 'Moving Multiple Terms'
-  , tasks: [
-    { expression: '1/2 + 1/3'
-    , correctAnswers: ['(1/3)+(1/2)']
-    , instructions: 'Move a fraction by picking it up by the fraction bar. Try it!'
-    , gestureTutorialData: data[4]
-    }
-  , { expression: 'x*(z+1)=b'
-    , correctAnswers: ['x=b/(z+1)', 'x=(1/(z+1))*b', 'x=b*(1/(z+1))']
-    , instructions: 'Bring the "(z+1)" to the other side by picking it up on one of the brackets!'
-    , gestureTutorialData: data[5]
-    }
-  , { expression: 'y=x/(z+1)'
-    , correctAnswers: ['y*(z+1)=x', '(z+1)*y=x']
-    , instructions: 'A general method to move several terms is to hold down the shift key and click the terms to select them. Then after releasing the shift key, the selected terms can be dragged. Try this to move the "z+1" over!'
-    , gestureTutorialData: data[6]
-    }
-  ] }
-, { title: 'Manipulating and Simplifying Fractions'
-  , tasks: [
-    { expression: '(a*b)/(x*y)'
-    , correctAnswers: ['a*(b/(x*y))', 'b*(a/(x*y))', '(b/(x*y))*a', '(a/(x*y))*b']
-    , instructions: 'Terms can be taken out of the numerator of a fraction by dragging them out to the right or left of the fraction.'
-    , gestureTutorialData: data[7]
-    }
-  , { expression: '(a*b)/(x*y)'
-    , correctAnswers: ['(1/x)*((a*b)/y)', '(1/y)*((a*b)/x)', '((a*b)/x)*(1/y)', '((a*b)/y)*(1/x)']
-    , instructions: 'Similar to terms in the numerator, terms in the denominator of a fraction can be taken out of the fraction by dragging them out to the right or left of the fraction.'
-    , gestureTutorialData: data[8]
-    }
-  , { expression: '6/4'
-    , correctAnswers: ['3/2']
-    , instructions: 'Terms in the numerator and denominator can cancel if they are the same.  If they have a common factor, that common factor can be isolated.  Do both of these things in one motion by dragging either term on top of the other, and then canceling the common factor.'
-    , gestureTutorialData: data[9]
-    }
-  ] }
-, { title: 'Simplifying Sums and Products'
-  , tasks: [
-    { expression: '1+2+5'
-    , correctAnswers: ['8']
-    , instructions: 'Drag one addend on top of another to add them.  The resulting addend can continue to be dragged, and so a sum can be simplified in one motion.  Simplify this sum.'
-    , gestureTutorialData: data[10]
-    }
-  , { expression: '2x+4x'
-    , correctAnswers: ['6x']
-    , instructions: 'Like terms can be combined in the same way.  Drag the 4x by the plus sign to combine it with the other addend.  Dragging either the number or the variable alone will not work!  You can select the whole addend by selecting every term in the product using the shift key.'
-    , gestureTutorialData: data[11]
-    }
-  , { expression: '2*3*7'
-    , correctAnswers: ['42']
-    , instructions: 'Simplify this product in one motion.'
-    , gestureTutorialData: data[12]
-    }
-  ] }
-, { title: 'Chaining Transformations'
-  , tasks: [
-    { expression: '(3+4+7)/7*x=2'
-    , correctAnswers: ['x=1']
-    , instructions: 'Gestures that manipulate expressions by dragging will leave a term that can continue to be dragged.  Solve this equation for x in one motion.  Hint: start by simplifying the sum in the numerator of the fraction.'
-    }
-  ] }
-]};
+                    , pages: data
+                    };
 
 function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
   jsPsych.init({
      display_element: $('#jspsych_target')
    , experiment_structure: [
-    tutorialBlock
     //   welcomeBlock
     // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
     //     { url: "html-templates/pre-instructions.html"
@@ -169,22 +83,22 @@ function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
     //     , force_refresh: true
     //     }
     //   ]}
-    // , tutorialBlock
-    // , { type: "call-function", fn: clearProgress }
+    //tutorialBlock
+    //, { type: "call-function", fn: clearProgress }
     // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
     //     { url: "html-templates/test-instructions.html"
     //     , cont_btn: "start"
     //     , force_refresh: true
     //     }
     //   ]}
-    // , trainingBlock
-    // , { type: "call-function", fn: clearProgress }
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/post-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
+    trainingBlock
+    , { type: "call-function", fn: clearProgress }
+    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/post-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
     // , posttestBlock
     // , { type: "call-function", fn: clearProgress }
     // , {type: "html", title: "Debriefing", timing_post_trial: 500, pages: [

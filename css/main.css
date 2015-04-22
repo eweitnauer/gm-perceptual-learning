@@ -16,7 +16,7 @@ g.math text {
 	height: 20px;
 }
 
-#tutorial-instructions p {
+p.tutorial-instructions {
 	font-size: 17px;
 	margin: 35px auto 0 auto;
 }
