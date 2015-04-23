@@ -16,6 +16,7 @@
  * 		type: "gm-multiple-choice"
  * 		problems: An array of objects.
  * 			Each object contains members:
+ *  		condition: 'interactive' or 'static'
  * 		  - solution
  * 			- A, B, C, D
  * 		  *These are the ascii or latex representations of valid GM expressions
@@ -50,6 +51,7 @@
 				//part.D = prob.D;
 				part.number = prob.number;
 				part.correctAnswer = prob.correctAnswer;
+				part.condition = prob.condition;
 				part.data = (typeof params.data === 'undefined') ? {} : params.data[i];
 				parts[i] = part;
 			}
@@ -68,13 +70,16 @@
 	  	// 	});
 	  	// }
 
+	  	var d = trial.parts[(part-1)%trial.parts.length];
+
 	  	display_element.append('p')
-	  	  .text("Rearrange the terms of the correct candidate on the left to make it match the target on the right. Do so by dragging one of the terms.")
+	  	  .text(d.condition === 'interactive'
+	  	  	? "Rearrange the terms of the correct candidate on the left to make it match the target on the right. Do so by dragging one of the terms."
+	  	    : "Click on the candidate on the left that is equivalent to the target on the right.")
 	  	  .style('font-size', '16px')
 	  	  .style('color', '#666')
 	  	  .style('font-style', 'italic');
 
-	  	var d = trial.parts[(part-1)%trial.parts.length];
 	  	var solution = d.solution;
 	  	choices = {
 	  			  A: { id: 'A', expr: d.A, dl: null, svg: null }
@@ -97,6 +102,7 @@
 	  	 ,accuracy : false
 	  	 ,correctAction : null
 	  	 ,task_id: d.task_id
+	  	 ,condition: d.condition
 	  	};
 
 	  	var container = display_element.append('div').attr('id', 'container');
@@ -125,10 +131,21 @@
 		  		eq: choice.expr
 		  	, selection_color: '#0093FF'
 		  	, enable_drag_to_join: false
+		  	, interactive: (d.condition === 'interactive')
 				});
-		  	div.append('span').text('correct').style('opacity', 0.00001);
+		  	div.append('span').text('correct').style({opacity: 1e-5, 'pointer-events': 'none'});
 		  	choice.svg = div.select('svg');
 		  	choice.div = div;
+		  	if (d.condition === 'static') {
+		  		var overlay = choice.dl.svg
+		  		  .append('rect')
+			  		  .datum(choice)
+			  		  .attr({width: '100%', height: '100%'})
+			  		  .style({fill: 'black', opacity: 0, cursor: 'pointer'})
+			  		  .on('mouseenter', function() { d3.select(this).style('opacity', 0.1) })
+			  		  .on('mouseleave', function() { d3.select(this).style('opacity', 0) })
+			  		  .on('click', function(d) { userActionCount = 1; finish_interaction(d) });
+		  	}
 		  }
 
 		  function addEventListeners() {
@@ -180,18 +197,27 @@
 			  var correctAction;
 			  var ts = wrongTransition(choice.div, 0);
 			  ts = neutralTransition(ts, 1500);
-	  		ts.each('end', function() {
-					if (choice === correctChoice)
-	  		 		userChoice.dl.setExpression(d[userChoice.id]);
-					correctAction = breadthFirstActionSearch(2);
-					ts = correctTransition(correctChoice.div, 500);
-					ts = chainTransition(ts, 1000).duration(0);
-					ts.each('end', function() {
-			   	  doActionForUser(correctAction, function() {
-		  	 	  	setTimeout(afterResponse, 2000);
+			  if (d.condition === 'interactive') {
+	  			ts.each('end', function() {
+						if (choice === correctChoice)
+	  		 			userChoice.dl.setExpression(d[userChoice.id]);
+						correctAction = breadthFirstActionSearch(2);
+						ts = correctTransition(correctChoice.div, 500);
+						ts = chainTransition(ts, 500).duration(0);
+						ts.each('end', function() {
+							doActionForUser(correctAction, function() {
+		  	 	  		setTimeout(afterResponse, 1000);
+		  	 			});
+		  	 		});
+	  			});
+	  		} else {
+	  			ts.each('end', function() {
+						ts = correctTransition(correctChoice.div, 500);
+						ts.each('end', function() {
+		  	 			setTimeout(afterResponse, 4000);
 		  	 		});
 		  	 	});
-	  		});
+	  		}
 	  	}
 
 	  	function breadthFirstActionSearch(maxDepth) {
@@ -365,14 +391,21 @@
   			partData.time_to_submit = Date.now() - startTime;
 	  		partData.userChoice = choice.id;
 	  		partData.userActionCount = userActionCount;
-	  		partData.userResult = choice.dl.getLastModel().to_ascii();
-
+	  		partData.userResult = (d.condition === 'interactive')
+	  		                    ? choice.dl.getLastModel().to_ascii()
+	  		                    : choice.id;
 	  		checkAnswer(choice);
 		  }
 
 		  function checkAnswer(choice) {
-		  	var correctAnsAscii = sol.getLastModel().to_ascii();
-	  		if (partData.userResult === correctAnsAscii) {
+		  	var correct;
+		  	if (d.condition === 'interactive') {
+		  		var correctAnsAscii = sol.getLastModel().to_ascii();
+		  		correct = (partData.userResult === correctAnsAscii);
+		  	} else {
+		  		correct = choice === correctChoice;
+		  	}
+	  		if (correct) {
 	  			problemAnsweredCorrectly(choice);
 	  		} else {
 	  			problemAnsweredIncorrectly(choice);

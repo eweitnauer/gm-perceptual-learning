@@ -5,7 +5,7 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/gmath-0.1.1x.min.js"></script>
+<script src="libs/gmath-0.1.2.min.js"></script>
 <script src="libs/tutorial-pair.js"></script>
 <script src="libs/svg-play-button.js"></script>
 <!-- Load the event recorder and recorded tutorial gesture data -->
@@ -33,8 +33,9 @@
 
 <script>
 
-test_mode = true;
+// test_mode = true;
 subject_id = gmath.uid().substr(1,6).toUpperCase();
+condition = 'interactive'; // 'interactive' or 'static'
 
 gmath.AlgebraView.defaultOptions.inactive_color = gmath.AlgebraView.defaultOptions.color;
 gmath.DerivationList.defaultOptions.substitution_on = false;
@@ -67,31 +68,31 @@ function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
   jsPsych.init({
      display_element: $('#jspsych_target')
    , experiment_structure: [
-    //   welcomeBlock
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/pre-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    // , { type: "call-function", fn: clearProgress }
-    // , pretestBlock
-    // , { type: "call-function", fn: clearProgress }
-    // , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/tutorial-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    //tutorialBlock
-    //, { type: "call-function", fn: clearProgress }
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/test-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    trainingBlock
+       welcomeBlock
+     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/pre-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , { type: "call-function", fn: clearProgress }
+    , pretestBlock
+    , { type: "call-function", fn: clearProgress }
+    , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
+        { url: "html-templates/tutorial-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , tutorialBlock
+    , { type: "call-function", fn: clearProgress }
+    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/train-instructions-" + condition + ".html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , trainingBlock
     , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/post-instructions.html"
@@ -99,14 +100,14 @@ function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
         , force_refresh: true
         }
       ]}
-    // , posttestBlock
-    // , { type: "call-function", fn: clearProgress }
-    // , {type: "html", title: "Debriefing", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/finished.html"
-    //     , force_refresh: true
-    //     , data: { subject_id: subject_id }
-    //     }
-    //   ]}
+    , posttestBlock
+    , { type: "call-function", fn: clearProgress }
+    , {type: "html", title: "Debriefing", timing_post_trial: 500, pages: [
+        { url: "html-templates/finished.html"
+        , force_refresh: true
+        , data: { subject_id: subject_id }
+        }
+      ]}
   ]
   , on_finish: function(block) {
       //jsPsych.dataAPI.displayData('json');
@@ -141,7 +142,7 @@ function save_main_trial(idx, trial, finished_callback) {
     // exp_id: experiment_id
     stage: 'main'
   , trial_idx: idx
-  , cond: 'interactive'
+  , cond: trial.condition
   , task: trial.solution
   , task_id: trial.task_id
   , optionA: trial.A
@@ -234,7 +235,7 @@ function parseMainCSV(callback) {
       .get(callback);
 }
 
-function createMainBlock(rows) {
+function createMainBlock(rows, condition) {
   var _1st = 0;
   var problems = [];
   var scrambledRows = permutation(rows);
@@ -269,6 +270,7 @@ function createMainBlock(rows) {
       //problem.D = choices[3];
       problem.correctAnswer = letter;
       problem.task_id = row_idx;
+      problem.condition = condition
       problems.push(problem);
     }
   //}
@@ -287,7 +289,7 @@ function createMainBlock(rows) {
 parsePrePostCSV(function(err, rows) {
   var blocks = createPrePostBlocks(rows);
   parseMainCSV(function(err, rows) {
-    var mainBlock = createMainBlock(rows);
+    var mainBlock = createMainBlock(rows, condition);
     startExperiment(blocks[0], blocks[1], mainBlock);
   });
 });

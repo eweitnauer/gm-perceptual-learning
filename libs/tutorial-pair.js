@@ -9,12 +9,15 @@ GMTutorialPair = function(container, settings) {
 	this.correctAnswers = settings.correctAnswers;
 	this.title = settings.title;
 	this.text = settings.text;
+	this.startWiggle = settings.startWiggle;
 	this.container = d3.select(container);
 	this.dl_div = null;
 	this.dl = null;
 	this.play_btn = SVGPlayButton();
 	this.player = null;
-	this.allow_restart_after_done = settings.allow_restart_after_done;
+	this.allow_restart_after_done = true;
+	if ('allow_restart_after_done' in settings)
+		this.allow_restart_after_done = settings.allow_restart_after_done;
 	this.init();
 }
 
@@ -24,6 +27,12 @@ GMTutorialPair.prototype.replay = function() {
 	self.player.replay(500, function() {
 		setTimeout(function() {
 			self.play_btn.hidden(false);
+			self.dl_div.select('span').text("Try it!").style('opacity', 1).classed('light', true);
+			if (self.startWiggle) self.dl.startWiggle(self.startWiggle);
+			self.dl_div.on('mousedown', function() {
+				self.dl_div.select('span').style('opacity', 0.00001).classed('light', false);;
+				self.dl_div.on('mousedown',null);
+			});
 		}, 1000);
 	});
 }
@@ -62,6 +71,7 @@ GMTutorialPair.prototype.init = function() {
 
 		var self = this;
 		this.dl_div.append('span').text('correct').style('opacity', 0.00001)
+		  .classed('label', true)
 		  .on('click', function() {
 		  	if (self.allow_restart_after_done) self.retry();
 		  });
@@ -101,7 +111,10 @@ GMTutorialPair.prototype.correctTransition = function(sel, delay) {
 GMTutorialPair.prototype.checkAnswer = function() {
 	this.dl.getLastView().interactive(false);
 	var ans = this.dl.getLastModel().to_ascii()
-	if (this.correctAnswers.indexOf(ans) !== -1) {
+	if (this.eq === this.dl.getLastModel().to_ascii()) { // Still in initial state.
+ 			this.dl.getLastView().interactive(true);
+ 	} else if (this.correctAnswers.indexOf(ans) !== -1) {
+ 		this.dl_div.select('span').text('good');
 		this.correctTransition(this.dl_div, 200)
 		  .each('end', this.events.done);
 	} else {
