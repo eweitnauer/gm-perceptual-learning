@@ -133,7 +133,7 @@
 		  	, enable_drag_to_join: false
 		  	, interactive: (d.condition === 'interactive')
 				});
-		  	div.append('span').text('correct').style({opacity: 1e-5, 'pointer-events': 'none'});
+		  	div.append('span').classed('label', true).text('correct').style({opacity: 1e-5, 'pointer-events': 'none'});
 		  	choice.svg = div.select('svg');
 		  	choice.div = div;
 		  	if (d.condition === 'static') {
@@ -370,7 +370,6 @@
 		  	setTimeout(finish, plugin.timing_post_trial);
 		  	var data = $.extend({}, trial, partData, d);
 		  	if (plugin.save_trial) plugin.save_trial(part-1, data, finish);
-		  	finish();
 		  }
 
 		  function mouse_down(choice) {

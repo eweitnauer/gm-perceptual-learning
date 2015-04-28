@@ -62,7 +62,7 @@
 				, eq: task.options.eq
 				, correctAnswers: task.correctAnswers
 				, text: task.text
-				, startWiggle: task.wiggle
+				, startWiggle: task.startWiggle
 				, allow_restart_after_done: false
 				});
 				tp.events.on('done', done);

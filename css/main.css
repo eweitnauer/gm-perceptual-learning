@@ -166,17 +166,24 @@ div.choices {
 	position: relative;
 }
 
-.choice span {
+.choice span.label {
 	left: 1px;
 	text-align: center;
-	width: 110px;
-	height: 110px;
-	background: rgba(0,0,0,0.25);
+	width: 120px;
+	height: 100%;
+	background: rgba(0,0,0,0.15);
 	top: 1px;
 	position: absolute;
 	border-radius: 3px 0 0 3px;
 	font-size: 20px;
+	font-family: Lato;
 	color: black;
 	display: inline-block;
-	line-height: 110px;
+	line-height: 120px;
+	font-style: italic;
+}
+
+.choice span.label.light {
+	background: none;
+	color: #85C042;
 }

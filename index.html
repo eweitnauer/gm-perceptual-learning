@@ -33,7 +33,7 @@
 
 <script>
 
-// test_mode = true;
+test_mode = true; // false or true
 subject_id = gmath.uid().substr(1,6).toUpperCase();
 condition = 'interactive'; // 'interactive' or 'static'
 
@@ -57,7 +57,7 @@ function clearProgress() {
 
 var welcomeMessage = '<div id="welcome"><p id="participant_id">Participant ID: <span>'+subject_id+'</span></p><p>Welcome to the experiment.</br>Press enter to begin.</p></div>';
 
-var welcomeBlock = { type: 'text', text: [welcomeMessage] };
+var welcomeBlock = { type: 'text', text: [welcomeMessage], cont_key: [13] };
 
 var tutorialBlock = { type: 'gm-tutorial'
                     , progress_fn: setProgress
@@ -123,6 +123,7 @@ function pre_post_saver(idx, trial, finished_callback) {
   , trial_idx: idx
   , task_id: trial.task_id
   , task: trial.eq
+  , cond: condition
   , correct_answer: trial.sol
   , recorded_time_to_action: trial.time_to_action
   , recorded_time_to_submit: trial.time_to_submit

@@ -3,7 +3,13 @@ GMEventRecorder = function(event_log, svg) {
 	this.dl = null;
 	this.other_dl = null; // for live replay
 	this.svg = d3.select(svg);
+	this.container = this.getSVGContainer(this.svg.node());
 	this.stop_timer = false;
+}
+
+GMEventRecorder.prototype.getSVGContainer = function(svg) {
+	while (svg.tagName.toLowerCase() !== 'svg') svg = svg.parentNode;
+	return d3.select(svg.parentNode);
 }
 
 GMEventRecorder.prototype.showPreview = function() {
@@ -36,7 +42,10 @@ GMEventRecorder.prototype.replay = function(delay, callback) {
 	function step(t) {
 		if (self.stop_timer) return true;
 		while (evts[next_idx].time - start < t) {
-			view.interaction_handler['on_'+evts[next_idx].type](evts[next_idx]);
+			var evt = evts[next_idx];
+			view.interaction_handler['on_'+evt.type](evt);
+			if (evt.type === 'keyup') self.updateKey(evt.keyCode, false);
+			if (evt.type === 'keydown') self.updateKey(evt.keyCode, true);
 			next_idx++;
 			if (next_idx === evts.length) {
 				callback();
@@ -44,6 +53,31 @@ GMEventRecorder.prototype.replay = function(delay, callback) {
 			}
 		}
 	}
+}
+
+// TODO: generalize to show several keys at once!
+GMEventRecorder.prototype.updateKey = function(keyCode, visible) {
+	console.log(keyCode);
+	var el = this.container.select('#key'+keyCode);
+
+	if (el.size() === 0) {
+		el = this.container.append('span')
+		  .attr('id', 'key'+keyCode)
+		  .classed('key-vis', true)
+		  .style('opacity', 1e-5)
+		  .style({ position: 'absolute'
+  					 , bottom: '5px'
+						 , right: '10px'
+						 , padding: '1px 7px'
+						 , border: '2px solid steelblue'
+						 , 'border-radius': '10px'
+						 , color: 'steelblue'
+						 , background: 'white'})
+		  .text({32: 'space'}[keyCode] || '');
+	}
+
+	if (visible) el.style('opacity', 1);
+	else el.transition().duration(750).style('opacity', 1e-5);
 }
 
 GMEventRecorder.prototype.stop_animation = function() {
