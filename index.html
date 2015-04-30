@@ -69,29 +69,29 @@ function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
      display_element: $('#jspsych_target')
    , experiment_structure: [
        welcomeBlock
-     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-        { url: "html-templates/pre-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , { type: "call-function", fn: clearProgress }
-    , pretestBlock
-    , { type: "call-function", fn: clearProgress }
-    , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
-        { url: "html-templates/tutorial-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , tutorialBlock
-    , { type: "call-function", fn: clearProgress }
-    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-        { url: "html-templates/train-instructions-" + condition + ".html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
+   //   , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+   //      { url: "html-templates/pre-instructions.html"
+   //      , cont_btn: "start"
+   //      , force_refresh: true
+   //      }
+   //    ]}
+   //  , { type: "call-function", fn: clearProgress }
+   //  , pretestBlock
+   //  , { type: "call-function", fn: clearProgress }
+   //  , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
+   //      { url: "html-templates/tutorial-instructions.html"
+   //      , cont_btn: "start"
+   //      , force_refresh: true
+   //      }
+   //    ]}
+   //  , tutorialBlock
+   //  , { type: "call-function", fn: clearProgress }
+   //  , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+   //      { url: "html-templates/train-instructions-" + condition + ".html"
+   //      , cont_btn: "start"
+   //      , force_refresh: true
+   //      }
+   //    ]}
     , trainingBlock
     , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
@@ -237,9 +237,9 @@ function parseMainCSV(callback) {
 }
 
 function createMainBlock(rows, condition) {
-  var _1st = 0;
+  var _1st = 23;
   var problems = [];
-  var scrambledRows = permutation(rows);
+  var scrambledRows = rows//permutation(rows);
   // if (test_mode) {
   //   for (var i=_1st; i<rows.length; i++) {
   //     var row = rows[i]
