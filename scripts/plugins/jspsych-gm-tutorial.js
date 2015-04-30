@@ -222,11 +222,9 @@
 			function finish(eq, i) {
 				if (finished < task_count) return;
 				if (players.some(function(player){return player.waiting_for_callback})) return;
-				console.log('finished');
 				finished = 0;
 				players.forEach(function(player) {
 					if (player.dl) {
-						console.log('quitting player', player);
 						player.stop_animation();
 						player.dl.remove()
 					}

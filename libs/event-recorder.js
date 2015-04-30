@@ -39,11 +39,9 @@ GMEventRecorder.prototype.replay = function(delay, callback) {
 			view.interaction_handler['on_'+evts[next_idx].type](evts[next_idx]);
 			next_idx++;
 			if (self.stop_timer) {
-				console.log('timer stopped')
 				return self.stop_timer;
 			}
 			if (next_idx === evts.length) {
-				console.log('callback about to be called', self.event_log.options.eq);
 				self.waiting_for_callback = true;
 				callback();
 				return true;
