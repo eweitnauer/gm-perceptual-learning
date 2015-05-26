@@ -5,7 +5,8 @@
 <!-- Load D3 for GM -->
 <script src="libs/d3/d3.min.js"></script>
 <!-- Load Grasping Math -->
-<script src="libs/gmath-0.1.2.min.js"></script>
+<!-- <script src="libs/gmath-0.1.2.min.js"></script> -->
+<script src="libs/gmath-0.1.2x.min.js"></script>
 <script src="libs/tutorial-pair.js"></script>
 <script src="libs/svg-play-button.js"></script>
 <!-- Load the event recorder and recorded tutorial gesture data -->
@@ -33,7 +34,7 @@
 
 <script>
 
-test_mode = false; // false or true
+test_mode = true; // false or true
 subject_id = gmath.uid().substr(1,6).toUpperCase();
 condition = 'interactive'; // 'interactive' or 'static'
 
@@ -68,31 +69,31 @@ function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
   jsPsych.init({
      display_element: $('#jspsych_target')
    , experiment_structure: [
-       welcomeBlock
-     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-        { url: "html-templates/pre-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , { type: "call-function", fn: clearProgress }
-    , pretestBlock
-    , { type: "call-function", fn: clearProgress }
-    , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
-        { url: "html-templates/tutorial-instructions.html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , tutorialBlock
-    , { type: "call-function", fn: clearProgress }
-    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-        { url: "html-templates/train-instructions-" + condition + ".html"
-        , cont_btn: "start"
-        , force_refresh: true
-        }
-      ]}
-    , trainingBlock
+    //    welcomeBlock
+    //  , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+    //     { url: "html-templates/pre-instructions.html"
+    //     , cont_btn: "start"
+    //     , force_refresh: true
+    //     }
+    //   ]}
+    // , { type: "call-function", fn: clearProgress }
+    // , pretestBlock
+    // , { type: "call-function", fn: clearProgress }
+    // , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
+    //     { url: "html-templates/tutorial-instructions.html"
+    //     , cont_btn: "start"
+    //     , force_refresh: true
+    //     }
+    //   ]}
+    // , tutorialBlock
+    // , { type: "call-function", fn: clearProgress }
+    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+    //     { url: "html-templates/train-instructions-" + condition + ".html"
+    //     , cont_btn: "start"
+    //     , force_refresh: true
+    //     }
+    //   ]}
+     trainingBlock
     , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/post-instructions.html"
@@ -240,41 +241,25 @@ function createMainBlock(rows, condition) {
   var _1st = 0;
   var problems = [];
   var scrambledRows = permutation(rows);
-  // if (test_mode) {
-  //   for (var i=_1st; i<rows.length; i++) {
-  //     var row = rows[i]
-  //        ,problem = {};
-  //     problem.solution = row.target;
-  //     problem.A = row.correct;
-  //     problem.B = row.bad1;
-  //     problem.C = row.bad2;
-  //     problem.D = row.bad3;
-  //     problem.number = i+1;
-  //     problem.correctAnswer = 'A';
-  //     problems.push(problem);
-  //   }
-  // } else {
-    for (var i=_1st; i<scrambledRows.length; i++) {
-      var row = scrambledRows[i];
-      var row_idx = rows.indexOf(row);
-      var scrambled = scramble([row.target, row.correct, row.bad1, row.bad2, row.bad3]);
-      var problem = {};
-      var choices = permutation(scrambled.slice(2));
-      var num_of_choices = 3
-      var correct_idx = Math.round(Math.random()*(num_of_choices-1));
-      choices.splice(correct_idx, 0, scrambled[1]);
-      var letter = ['A', 'B', 'C'][correct_idx];
-      problem.solution = scrambled[0];
-      problem.A = choices[0];
-      problem.B = choices[1];
-      problem.C = choices[2];
-      //problem.D = choices[3];
-      problem.correctAnswer = letter;
-      problem.task_id = row_idx;
-      problem.condition = condition
-      problems.push(problem);
-    }
-  //}
+  for (var i=_1st; i<scrambledRows.length; i++) {
+    var row = scrambledRows[i];
+    var row_idx = rows.indexOf(row);
+    var scrambled = scramble([row.target, row.correct, row.bad1, row.bad2, row.bad3]);
+    var problem = {};
+    var choices = permutation(scrambled.slice(2));
+    var num_of_choices = 3
+    var correct_idx = Math.round(Math.random()*(num_of_choices-1));
+    choices.splice(correct_idx, 0, scrambled[1]);
+    var letter = ['A', 'B', 'C'][correct_idx];
+    problem.solution = scrambled[0];
+    problem.A = choices[0];
+    problem.B = choices[1];
+    problem.C = choices[2];
+    problem.correctAnswer = letter;
+    problem.task_id = row_idx;
+    problem.condition = condition
+    problems.push(problem);
+  }
 
   var trainingBlock = {
     type: 'gm-multiple-choice'
