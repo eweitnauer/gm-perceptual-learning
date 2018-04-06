@@ -14,6 +14,7 @@
  *
  * 	Parameters:
  * 		type: "gm-multiple-choice"
+ * 		time_limit: time in ms
  * 		problems: An array of objects.
  * 			Each object contains members:
  *  		condition: 'interactive' or 'static'
@@ -30,7 +31,6 @@
 
 		var plugin = {};
 
-		var timeLimit = 1000*60*30;
 		var start_time;
 
 		plugin.create = function(params) {
@@ -38,6 +38,8 @@
 			plugin.save_trial = params.save_trial;
 			plugin.timing_post_trial = params.timing_post_trial || 0;
 			plugin.progress_fn = params.progress_fn;
+			plugin.time_limit = params.time_limit || 1000*60*30; // 30 minutes
+
 
 			var parts = new Array(params.problems.length);
 			for (var i=0; i<parts.length; i++) {
@@ -359,11 +361,11 @@
 
 		  var afterResponse = function() {
 		  	display_element.html('');
-				if (plugin.progress_fn) plugin.progress_fn((Date.now()-start_time)/timeLimit);
+				if (plugin.progress_fn) plugin.progress_fn((Date.now()-start_time)/plugin.time_limit);
 		  	var tasks_to_do = 2;
 		  	function finish() {
 		  		if (--tasks_to_do === 0) {
-		  			if (Date.now() - start_time > timeLimit) block.next();
+		  			if (Date.now() - start_time > plugin.time_limit) block.next();
 		  			else plugin.trial(display_element, block, trial, part+1);
 		  		}
 		  	}

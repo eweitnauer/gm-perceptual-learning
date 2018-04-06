@@ -34,9 +34,13 @@
 
 <script>
 
+version = '1.2';
 test_mode = true; // false or true
 subject_id = gmath.uid().substr(1,6).toUpperCase();
 condition = 'interactive'; // 'interactive' or 'static'
+pre_problem_count = 2; // use to limit test problems for debugging, for experiment comment out
+main_problem_count = 10; // use to limit test problems for debugging, for experiment comment out
+time_limit_main = 1000*60*2; // 3 minutes for testing, adjust for experiment
 
 gmath.AlgebraView.defaultOptions.inactive_color = gmath.AlgebraView.defaultOptions.color;
 gmath.DerivationList.defaultOptions.substitution_on = false;
@@ -69,31 +73,31 @@ function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
   jsPsych.init({
      display_element: $('#jspsych_target')
    , experiment_structure: [
-    //    welcomeBlock
-    //  , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/pre-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    // , { type: "call-function", fn: clearProgress }
-    // , pretestBlock
-    // , { type: "call-function", fn: clearProgress }
-    // , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/tutorial-instructions.html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-    // , tutorialBlock
-    // , { type: "call-function", fn: clearProgress }
-    // , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
-    //     { url: "html-templates/train-instructions-" + condition + ".html"
-    //     , cont_btn: "start"
-    //     , force_refresh: true
-    //     }
-    //   ]}
-     trainingBlock
+       welcomeBlock
+     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/pre-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , { type: "call-function", fn: clearProgress }
+    , pretestBlock
+    , { type: "call-function", fn: clearProgress }
+    , {type: "html", title: "Tutorial", timing_post_trial: 500, pages: [
+        { url: "html-templates/tutorial-instructions.html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , tutorialBlock
+    , { type: "call-function", fn: clearProgress }
+    , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
+        { url: "html-templates/train-instructions-" + condition + ".html"
+        , cont_btn: "start"
+        , force_refresh: true
+        }
+      ]}
+    , trainingBlock
     , { type: "call-function", fn: clearProgress }
     , {type: "html", title: "Instructions", timing_post_trial: 500, pages: [
         { url: "html-templates/post-instructions.html"
@@ -111,7 +115,7 @@ function startExperiment(pretestBlock, posttestBlock, trainingBlock) {
       ]}
   ]
   , on_finish: function(block) {
-      //jsPsych.dataAPI.displayData('json');
+      jsPsych.dataAPI.displayData('json');
       //jsPsych.dataAPI.localSave('data.json', 'json')
     }
   });
@@ -192,7 +196,8 @@ function createPrePostBlocks(rows) {
   var pretestProblems = []
      ,posttestProblems = [];
   var scrambledRows = permutation(rows);
-  for (var i=0; i<rows.length; i++) {
+  var len = (typeof(pre_problem_count) === 'undefined') ? rows.length : pre_problem_count;
+  for (var i=0; i<len; i++) {
     var row = scrambledRows[i];
     var idx = rows.indexOf(row);
     var option1 = { eq:row.problem1, 'var':'x', sol:row.solution1
@@ -263,6 +268,7 @@ function createMainBlock(rows, condition) {
 
   var trainingBlock = {
     type: 'gm-multiple-choice'
+   ,time_limit: time_limit_main
    ,save_trial: save_main_trial
    ,timing_post_trial: 500
    ,problems: problems
